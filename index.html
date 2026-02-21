@@ -185,6 +185,43 @@
             margin-bottom: 25px;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
+        }
+
+        .endless-mode-btn {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            padding: 12px 30px;
+            font-size: 20px;
+            font-weight: 800;
+            border-radius: 30px;
+            box-shadow: 0 6px 0 #92400E, var(--clay-shadow-btn);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: pulse-gold 2s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 6px 0 #92400E, 0 0 0 rgba(245, 158, 11, 0);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 6px 0 #92400E, 0 0 20px rgba(245, 158, 11, 0.6);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 6px 0 #92400E, 0 0 0 rgba(245, 158, 11, 0);
+            }
+        }
+
+        .endless-mode-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #92400E;
         }
 
         .level-buttons {
@@ -643,6 +680,108 @@
             transform: translateX(-50%) scale(0.8);
         }
 
+        /* 連擊升級特效 2.0 */
+        #combo-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: 900;
+            color: #FF9F1C;
+            text-shadow: 3px 3px 0px #fff, 0 0 10px rgba(255, 159, 28, 0.5);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+            font-family: 'Baloo 2', sans-serif;
+        }
+
+        #combo-display.active {
+            opacity: 1;
+            animation: combo-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #combo-display.fire {
+            color: #FF4D00;
+            text-shadow: 0 0 15px #FFD700, 3px 3px 0px #fff;
+            animation: combo-burn 0.4s infinite alternate;
+        }
+
+        @keyframes combo-bounce {
+            0% {
+                transform: scale(0.5) rotate(-20deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes combo-burn {
+            from {
+                transform: scale(1.1);
+                filter: brightness(1.2) drop-shadow(0 0 5px #ff0000);
+            }
+
+            to {
+                transform: scale(1.2);
+                filter: brightness(1.5) drop-shadow(0 0 20px #ff9900);
+            }
+        }
+
+        /* 排行榜與結算面板增強 */
+        .leaderboard-panel {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: var(--clay-shadow-btn);
+            border: 2px solid #ddd;
+        }
+
+        .leaderboard-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #4F46E5;
+            margin-bottom: 10px;
+            border-bottom: 2px dashed #4F46E5;
+            padding-bottom: 5px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-weight: 700;
+            border-bottom: 1px solid #eee;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-item .rank {
+            color: #F59E0B;
+            width: 25px;
+        }
+
+        .leaderboard-item .score {
+            color: #10B981;
+        }
+
+        #score-display {
+            font-size: 40px;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #FFD700, #F59E0B);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+        }
+
         @keyframes celebrate {
 
             0%,
@@ -1077,6 +1216,7 @@
         <div id="level-select-screen" class="screen">
             <h2>選擇關卡</h2>
             <div class="map-buttons-row">
+                <button id="endless-mode-btn" class="endless-mode-btn">🔥 無盡挑戰</button>
                 <button id="reset-progress-btn" class="btn">重置進度</button>
             </div>
             <div id="level-buttons-container" class="level-buttons"></div>
@@ -1125,7 +1265,13 @@
             <h2 id="level-end-title"></h2>
             <div id="level-end-hearts"><span class="heart">🤍</span><span class="heart">🤍</span><span
                     class="heart">🤍</span></div>
-            <p id="level-end-message"></p><button id="review-btn" class="btn">學習回顧</button>
+            <p id="level-end-message"></p>
+            <div id="score-display" style="display:none;"></div>
+            <div id="leaderboard-panel" class="leaderboard-panel" style="display:none;">
+                <div class="leaderboard-title">🏆 本地排行榜 (前五)</div>
+                <div id="leaderboard-list"></div>
+            </div>
+            <button id="review-btn" class="btn">學習回顧</button>
         </div>
         <div id="level-review-screen" class="screen">
             <h2>本關回顧</h2>
@@ -1159,6 +1305,7 @@
             let gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; let currentLevelIndex = 0, lives = 3, currentQuestions = [], currentQuestionIndex = 0, correctAnswersInLevel = 0, userAnswer = '', isChecking = false, activeScreen = 'start', levelResults = [], isMuted = false;
             let audioContext, bgmInterval, countdownInterval, timeRemaining;
             let currentCombo = 0, hintsLeft = 1;
+            let currentScore = 0, isEndlessMode = false;
             const QUESTIONS_PER_LEVEL = 5;
             const TIME_ADD_PER_QUESTION = 15; // 困難模式下每題增加 15 秒
 
@@ -1197,8 +1344,33 @@
             function loadGameState() { const savedState = localStorage.getItem('bopomofoPartyState'); if (savedState) { gameState = JSON.parse(savedState); } }
             function initAudio() { if (!audioContext) { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } }
             function playNote(frequency, type = 'sine', duration = 0.1) { if (isMuted || !audioContext) return; try { const o = audioContext.createOscillator(), g = audioContext.createGain(); o.connect(g); g.connect(audioContext.destination); o.type = type; o.frequency.setValueAtTime(frequency, audioContext.currentTime); g.gain.setValueAtTime(0.2, audioContext.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration); o.start(); o.stop(audioContext.currentTime + duration); } catch (e) { } }
-            function playSound(type) { if (type === 'correct') playNote(600, 'sine', 0.5); else if (type === 'wrong') playNote(150, 'square', 0.2); else if (type === 'touch') playNote(440, 'triangle', 0.1); }
-            function toggleBgm() { if (isMuted || !audioContext) { clearInterval(bgmInterval); bgmInterval = null; return; } if (bgmInterval) return; const notes = [261, 293, 329, 349]; let noteIndex = 0; bgmInterval = setInterval(() => { playNote(notes[noteIndex % notes.length], 'sine', 0.3); noteIndex++; }, 500); }
+            function playSound(type) {
+                // 優先使用實體音檔
+                const audio = new Audio(`./assets/sounds/${type}.mp3`);
+                audio.play().catch(() => {
+                    // Fallback 到合成音
+                    if (type === 'correct') playNote(600, 'sine', 0.5);
+                    else if (type === 'wrong') playNote(150, 'square', 0.2);
+                    else if (type === 'touch') playNote(440, 'triangle', 0.1);
+                });
+            }
+            function toggleBgm() {
+                if (isMuted) {
+                    if (window.bgmAudio) window.bgmAudio.pause();
+                    return;
+                }
+                if (!window.bgmAudio) {
+                    window.bgmAudio = new Audio('./assets/sounds/bgm.mp3');
+                    window.bgmAudio.loop = true;
+                }
+                window.bgmAudio.play().catch(() => {
+                    // Fallback 到原有合成 BGM 邏輯
+                    if (!audioContext) return;
+                    if (bgmInterval) return;
+                    const notes = [261, 293, 329, 349]; let noteIndex = 0;
+                    bgmInterval = setInterval(() => { playNote(notes[noteIndex % notes.length], 'sine', 0.3); noteIndex++; }, 500);
+                });
+            }
             function showScreen(screenId) { screens[activeScreen].classList.remove('active'); activeScreen = screenId; screens[activeScreen].classList.add('active'); }
             function triggerConfetti() {
                 const shapes = ['confetti-round', 'confetti-star', 'confetti-heart', 'confetti-square'];
@@ -1231,15 +1403,18 @@
                 if (isCorrect) {
                     playSound('correct'); correctAnswersInLevel++;
 
-                    // Combo Logic
+                    // Combo Logic 2.0
                     currentCombo++;
+                    currentScore += (100 * (isEndlessMode ? 1.5 : 1)) + (currentCombo * 20); // 分數計算加上連擊加成
+
                     if (currentCombo >= 2) {
-                        comboDisplay.textContent = `${currentCombo} 連擊!`;
-                        comboDisplay.classList.remove('active');
+                        comboDisplay.textContent = `${currentCombo} 連擊! ${currentCombo >= 5 ? '🔥' : ''}`;
+                        comboDisplay.classList.remove('active', 'fire');
                         void comboDisplay.offsetWidth; // trigger reflow
                         comboDisplay.classList.add('active');
+                        if (currentCombo >= 5) comboDisplay.classList.add('fire');
                     } else {
-                        comboDisplay.classList.remove('active');
+                        comboDisplay.classList.remove('active', 'fire');
                     }
 
                     feedbackMessage.textContent = '答對了！太棒了！'; feedbackMessage.className = 'feedback-correct';
@@ -1306,11 +1481,46 @@
                 clearInterval(countdownInterval);
                 const endScreen = screens.levelEnd, title = endScreen.querySelector('h2'), heartsDisplay = endScreen.querySelectorAll('.heart'), msg = endScreen.querySelector('p');
                 const heartsEarned = isSuccess ? lives : 0;
+
+                // 分數與排行榜邏輯
+                const scoreDisplay = endScreen.querySelector('#score-display');
+                const leaderboardPanel = endScreen.querySelector('#leaderboard-panel');
+                const leaderboardList = endScreen.querySelector('#leaderboard-list');
+
+                if (isEndlessMode || isSuccess) {
+                    scoreDisplay.style.display = 'block';
+                    scoreDisplay.textContent = `得分：${currentScore}`;
+
+                    // 紀錄排行榜
+                    let highScores = JSON.parse(localStorage.getItem('bopomofoHighScores') || '[]');
+                    highScores.push({ score: currentScore, date: new Date().toLocaleDateString() });
+                    highScores.sort((a, b) => b.score - a.score);
+                    highScores = highScores.slice(0, 5);
+                    localStorage.setItem('bopomofoHighScores', JSON.stringify(highScores));
+
+                    // 顯示排行榜
+                    leaderboardPanel.style.display = 'block';
+                    leaderboardList.innerHTML = highScores.map((s, i) =>
+                        `<div class="leaderboard-item">
+                            <span class="rank">${i + 1}</span>
+                            <span>${s.date}</span>
+                            <span class="score">${s.score}</span>
+                        </div>`
+                    ).join('');
+                } else {
+                    scoreDisplay.style.display = 'none';
+                    leaderboardPanel.style.display = 'none';
+                }
+
                 if (isSuccess) {
-                    title.textContent = "挑戰成功！";
-                    const oldHearts = gameState.hearts[currentLevelIndex + 1] || 0; gameState.hearts[currentLevelIndex + 1] = Math.max(oldHearts, heartsEarned);
-                    msg.textContent = heartsEarned === 3 ? "完美通關！太厲害了！" : "你真棒！";
-                    if (heartsEarned > 0 && (currentLevelIndex + 2 > gameState.unlockedLevels) && (currentLevelIndex + 1 < gameLevels.length)) { gameState.unlockedLevels = currentLevelIndex + 2; }
+                    title.textContent = isEndlessMode ? "挑戰結束" : "挑戰成功！";
+                    if (!isEndlessMode) {
+                        const oldHearts = gameState.hearts[currentLevelIndex + 1] || 0; gameState.hearts[currentLevelIndex + 1] = Math.max(oldHearts, heartsEarned);
+                        msg.textContent = heartsEarned === 3 ? "完美通關！太厲害了！" : "你真棒！";
+                        if (heartsEarned > 0 && (currentLevelIndex + 2 > gameState.unlockedLevels) && (currentLevelIndex + 1 < gameLevels.length)) { gameState.unlockedLevels = currentLevelIndex + 2; }
+                    } else {
+                        msg.textContent = `無盡挑戰結束！你一共答對了 ${correctAnswersInLevel} 題！`;
+                    }
 
                     // Achievement Unlock Logic
                     if (heartsEarned === 3) {
@@ -1349,6 +1559,13 @@
             }
 
             function loadQuestion() {
+                if (isEndlessMode && currentQuestionIndex >= currentQuestions.length - 1) {
+                    // 如果是無盡模式且題目快不夠了，再補一輪隨機題
+                    const allPool = [];
+                    gameLevels.forEach(l => allPool.push(...l.questions));
+                    currentQuestions.push(...[...allPool].sort(() => 0.5 - Math.random()));
+                }
+
                 if (currentQuestionIndex >= currentQuestions.length) { endLevel(true); return; }
                 userAnswer = ''; isChecking = false; feedbackMessage.textContent = ''; updateAnswerDisplay();
                 const q = currentQuestions[currentQuestionIndex];
@@ -1362,23 +1579,49 @@
                 charDisplay.textContent = q.char;
                 speechBtn.onclick = () => speakWord(q.char);
 
-                if (currentLevelIndex >= 3) {
+                if (currentLevelIndex >= 3 || isEndlessMode) {
                     timerDisplay.style.display = 'block';
-                    timeRemaining = 20 + (currentQuestionIndex * 2); // 簡單動態時間調整
+                    timeRemaining = 20 + Math.min(30, currentQuestionIndex); // 無盡模式下動態增加難度
                     startTimer();
                 } else {
                     timerDisplay.style.display = 'none';
                 }
             }
             function startGame(levelIndex) {
-                currentLevelIndex = levelIndex; lives = 3; levelResults = []; correctAnswersInLevel = 0; currentCombo = 0;
-                comboDisplay.classList.remove('active');
-                hintsLeft = 1; hintBtn.textContent = '💡 提示: 1'; hintBtn.disabled = false;
-                const fullQuestionPool = gameLevels[levelIndex].questions;
-                currentQuestions = [...fullQuestionPool].sort(() => 0.5 - Math.random()).slice(0, QUESTIONS_PER_LEVEL);
-                currentQuestionIndex = 0; progressBarInner.style.width = '0%';
+                initAudio(); toggleBgm();
+                currentLevelIndex = levelIndex;
+                isEndlessMode = false;
+                lives = 3; currentQuestionIndex = 0; correctAnswersInLevel = 0;
+                currentCombo = 0; currentScore = 0;
+                levelResults = [];
+
+                // 取樣題目
+                const allQs = gameLevels[levelIndex].questions;
+                currentQuestions = [...allQs].sort(() => 0.5 - Math.random()).slice(0, QUESTIONS_PER_LEVEL);
+
+                updateLivesDisplay(); progressBarInner.style.width = '0%';
                 updateDynamicBackground(levelIndex);
-                updateLivesDisplay(); loadQuestion(); showScreen('game');
+                showScreen('game'); loadQuestion();
+            }
+
+            function startEndlessMode() {
+                initAudio(); toggleBgm();
+                isEndlessMode = true;
+                lives = 3; currentQuestionIndex = 0; correctAnswersInLevel = 0;
+                currentCombo = 0; currentScore = 0;
+                levelResults = [];
+
+                // 收集所有關卡的題目
+                const allQuestionsPool = [];
+                gameLevels.forEach(l => allQuestionsPool.push(...l.questions));
+
+                // 設一個極大值作為無盡模式的 question 陣列，動態追加
+                currentQuestions = [...allQuestionsPool].sort(() => 0.5 - Math.random());
+
+                updateLivesDisplay(); progressBarInner.style.width = '0%';
+                // 使用隨機背景
+                updateDynamicBackground(Math.floor(Math.random() * gameLevels.length));
+                showScreen('game'); loadQuestion();
             }
             function updateLivesDisplay() { livesDisplay.textContent = '❤️'.repeat(lives); }
             function parseBopomofo(str) { const p = { c: '', m: '', f: '', t: '' }; let r = str; for (const t of bopomofoParts.tones) { if (r.includes(t)) { p.t = t; r = r.replace(t, ''); break; } } if (r.length > 0 && bopomofoParts.consonants.includes(r[0])) { p.c = r[0]; r = r.substring(1); } if (r.length > 0 && bopomofoParts.medials.includes(r[0])) { p.m = r[0]; r = r.substring(1); } p.f = r; return p; }
@@ -1390,8 +1633,9 @@
             allButtons.forEach(btn => btn.addEventListener('click', () => playSound('touch')));
             document.getElementById('start-game-btn').addEventListener('click', () => { initAudio(); toggleBgm(); updateLevelSelectScreen(); showScreen('levelSelect'); });
 
-            achievementsBtn.addEventListener('click', () => { initAudio(); renderAchievements(); showScreen('achievements'); });
-            backToStartBtn.addEventListener('click', () => showScreen('start'));
+            achievementsBtn.onclick = () => { playSound('touch'); renderAchievements(); showScreen('achievements'); };
+            backToStartBtn.onclick = () => { playSound('touch'); showScreen('levelSelect'); };
+            document.getElementById('endless-mode-btn').onclick = () => { playSound('touch'); startEndlessMode(); };
 
             reviewBtn.addEventListener('click', () => { populateReviewScreen(); showScreen('levelReview'); });
             document.getElementById('back-to-map-btn').addEventListener('click', () => showScreen('levelSelect'));
