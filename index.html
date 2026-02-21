@@ -158,15 +158,18 @@
         }
 
         .level-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            justify-content: center;
         }
 
         .level-btn {
-            width: 120px;
-            height: 120px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            height: auto;
             font-size: 24px;
             font-family: 'Baloo 2', sans-serif;
             font-weight: 700;
@@ -181,10 +184,36 @@
             border: 2px solid rgba(255, 255, 255, 0.5);
         }
 
+        .level-btn:not(.locked):nth-child(5n+1) {
+            background-color: var(--clay-peach);
+            border-color: #FFB6C1;
+        }
+
+        .level-btn:not(.locked):nth-child(5n+2) {
+            background-color: var(--clay-mint);
+            border-color: #98FF98;
+        }
+
+        .level-btn:not(.locked):nth-child(5n+3) {
+            background-color: var(--clay-sky);
+            border-color: #87CEFA;
+        }
+
+        .level-btn:not(.locked):nth-child(5n+4) {
+            background-color: var(--clay-banana);
+            border-color: #F0E68C;
+        }
+
+        .level-btn:not(.locked):nth-child(5n+5) {
+            background-color: var(--clay-lilac);
+            border-color: #DDA0DD;
+        }
+
         .level-btn.locked {
             background: #D1D5DB;
             color: #9CA3AF;
-            box-shadow: inset 0px 4px 5px rgba(255, 255, 255, 0.4), inset 0px -4px 5px rgba(0, 0, 0, 0.1);
+            border-color: #E5E7EB;
+            box-shadow: inset -2px -2px 6px rgba(0, 0, 0, 0.1), 4px 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .level-btn .hearts {
@@ -346,21 +375,28 @@
         }
 
         .speech-btn {
-            font-size: 24px;
-            padding: 5px 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(28px, 5vw, 36px);
+            width: clamp(50px, 10vw, 70px);
+            height: clamp(50px, 10vw, 70px);
             border-radius: 50%;
-            background-color: #38bdf8;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            color: white;
-            box-shadow: var(--clay-shadow-btn);
+            background-color: var(--clay-sky);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            color: #1E40AF;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5), var(--clay-shadow-btn);
             cursor: pointer;
-            margin-bottom: 15px;
-            z-index: 2;
-            transition: all 0.2s;
+            z-index: 5;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse-glow 2.5s infinite;
+            position: absolute;
+            top: -20px;
+            right: -15px;
         }
 
         .speech-btn:hover {
-            transform: translateY(-2px) scale(1.05);
+            transform: scale(1.1);
         }
 
         .speech-btn:active {
@@ -374,15 +410,21 @@
             align-items: center;
             position: relative;
             z-index: 2;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 15px 30px;
+            border-radius: 40px;
+            box-shadow: var(--clay-shadow-card);
+            border: 4px solid white;
+            margin-bottom: 20px;
         }
 
         #char-display {
             font-family: 'Baloo 2', sans-serif;
             font-weight: 700;
-            font-size: clamp(100px, 25vw, 150px);
+            font-size: clamp(80px, 20vw, 130px);
             margin-right: 20px;
             color: var(--text-color);
-            text-shadow: 3px 3px 0px #fff;
+            text-shadow: 2px 2px 0px #fff;
         }
 
         #bopomofo-answer {
@@ -394,6 +436,8 @@
             padding: 5px 15px;
             border-radius: 20px;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            min-width: 60px;
+            min-height: 50px;
         }
 
         .keyboard {
@@ -412,27 +456,81 @@
         .bopomofo-btn {
             font-family: 'Comic Neue', sans-serif;
             font-weight: 700;
-            width: clamp(38px, 9vw, 48px);
-            height: clamp(38px, 9vw, 48px);
-            font-size: clamp(20px, 4.5vw, 26px);
+            width: clamp(35px, 8.5vw, 48px);
+            height: clamp(35px, 8.5vw, 48px);
+            font-size: clamp(18px, 4vw, 26px);
             margin: 3px;
             transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.8);
             background: #fff;
             color: var(--text-color);
             box-shadow: var(--clay-shadow-btn);
         }
 
+        /* Keyboard pastel colors */
+        #consonants .bopomofo-btn {
+            background-color: var(--clay-sky);
+        }
+
+        #medians .bopomofo-btn {
+            background-color: var(--clay-peach);
+        }
+
+        #vowels .bopomofo-btn {
+            background-color: var(--clay-banana);
+        }
+
+        #tones .bopomofo-btn {
+            background-color: var(--clay-mint);
+        }
+
+        .keyboard-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .control-btn {
+            font-size: clamp(16px, 4vw, 22px);
+            padding: 8px 18px;
+            min-height: 44px;
+        }
+
+        .hint-btn {
+            background-color: #FCD34D;
+            color: #78350F;
+        }
+
+        .clear-btn {
+            background-color: #9CA3AF;
+            color: white;
+        }
+
+        .check-btn {
+            background-color: var(--success-color);
+            color: white;
+            font-size: clamp(18px, 4.5vw, 24px);
+            padding: 8px 25px;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .check-btn:hover {
+            background-color: #16A34A;
+        }
+
         .bopomofo-btn:hover {
             transform: translateY(-2px);
             color: var(--primary-color);
+            filter: brightness(1.05);
         }
 
         .bopomofo-btn:active {
             transform: translateY(2px) scale(0.95);
             box-shadow: var(--clay-shadow-btn-active);
-            background-color: var(--bg-color);
+            filter: brightness(0.95);
         }
 
         #feedback-message {
@@ -873,8 +971,8 @@
             <div class="quiz-content">
                 <div id="combo-display"></div>
                 <img id="question-image" src="">
-                <button id="speech-btn" class="speech-btn" title="聆聽發音">📢</button>
                 <div id="interaction-area">
+                    <button id="speech-btn" class="speech-btn" title="聆聽發音">📢</button>
                     <div id="char-display"></div>
                     <div id="bopomofo-answer"></div>
                 </div>
@@ -885,11 +983,9 @@
                 <div class="bopomofo-group" id="vowels"></div>
                 <div class="bopomofo-group" id="tones"></div>
                 <div class="keyboard-controls">
-                    <button id="hint-btn" class="btn hint-btn" style="font-size:16px; padding: 6px 15px;">💡 提示:
-                        1</button>
-                    <button id="clear-btn" class="btn" style="font-size:16px; padding: 6px 15px;">🗑️ 清除</button>
-                    <button id="check-btn" class="btn"
-                        style="font-size:16px; padding: 6px 20px; background-color: #e5383b; box-shadow: 0 4px #800f13;">送出答案</button>
+                    <button id="hint-btn" class="btn hint-btn">💡 提示: 1</button>
+                    <button id="clear-btn" class="btn control-btn clear-btn">🗑️ 清除</button>
+                    <button id="check-btn" class="btn control-btn check-btn">👉 送出作答</button>
                 </div>
             </div>
         </div>
