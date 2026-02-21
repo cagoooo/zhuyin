@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ㄅㄆㄇ 注音大挑戰 🎲 </title>
     <link rel="icon" href="https://fav.farm/🎲">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="注音大挑戰">
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%234F46E5'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='300' fill='white' text-anchor='middle' dy='.3em'%3E🎲%3C/text%3E%3C/svg%3E">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
 
@@ -1675,6 +1681,18 @@
             document.getElementById('quit-level-btn').addEventListener('click', () => { clearInterval(countdownInterval); currentCombo = 0; if (confirm('確定要放棄這一關嗎？進度將不會儲存喔！')) { showScreen('levelSelect'); } else { startTimer(); } });
             resetButton.addEventListener('click', () => { if (confirm('確定要清除所有遊戲進度和成績嗎？\n(同時會清除成就榜徽章喔！)')) { gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; saveGameState(); updateLevelSelectScreen(); renderAchievements(); } });
             muteBtn.addEventListener('click', () => { isMuted = !isMuted; muteBtn.textContent = isMuted ? '🔇' : '🔊'; toggleBgm(); });
+
+            // PWA Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js').then((registration) => {
+                        console.log('SW: Registered successfully with scope:', registration.scope);
+                    }, (err) => {
+                        console.log('SW: Registration failed:', err);
+                    });
+                });
+            }
+
             fullscreenBtn.addEventListener('click', () => {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen().catch((err) => {
