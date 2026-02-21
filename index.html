@@ -301,8 +301,9 @@
         .progress-bar-inner {
             width: 0%;
             height: 100%;
-            background: var(--accent-color);
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--accent-color), #FBBF24);
+            transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            border-radius: inherit;
         }
 
         .top-buttons {
@@ -578,6 +579,38 @@
 
         .feedback-wrong {
             color: var(--danger-color);
+        }
+
+        /* 答錯注音小卡 */
+        #answer-hint-card {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            background: white;
+            border: 3px solid var(--danger-color);
+            border-radius: 16px;
+            padding: 8px 18px;
+            font-family: 'Baloo 2', sans-serif;
+            font-size: clamp(18px, 4.5vw, 24px);
+            font-weight: 700;
+            color: var(--danger-color);
+            box-shadow: 0 4px 0 #B91C1C, var(--clay-shadow-btn);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+            transition: opacity 0.3s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #answer-hint-card.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        #answer-hint-card.hide {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.8);
         }
 
         @keyframes celebrate {
@@ -1034,8 +1067,13 @@
             </div>
             <div class="quiz-content">
                 <div id="combo-display"></div>
-                <img id="question-image" src="">
+                <img id="question-image" src=""
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div id="question-image-fallback"
+                    style="display:none; font-size:clamp(80px,18vw,110px); justify-content:center; align-items:center; height:160px;">
+                </div>
                 <div id="interaction-area">
+                    <div id="answer-hint-card"></div>
                     <button id="speech-btn" class="speech-btn" title="聆聽發音">📢</button>
                     <div id="char-display"></div>
                     <div id="bopomofo-answer"></div>
@@ -1086,7 +1124,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const screens = { start: document.getElementById('start-screen'), levelSelect: document.getElementById('level-select-screen'), game: document.getElementById('game-screen'), levelEnd: document.getElementById('level-end-screen'), levelReview: document.getElementById('level-review-screen'), achievements: document.getElementById('achievements-screen') };
-            const interactionArea = document.getElementById('interaction-area'); const livesDisplay = document.getElementById('lives-display'); const progressBarInner = document.getElementById('progress-bar-inner'); const questionImage = document.getElementById('question-image'); const charDisplay = document.getElementById('char-display'); const bopomofoAnswer = document.getElementById('bopomofo-answer'); const feedbackMessage = document.getElementById('feedback-message'); const levelSelectContainer = document.getElementById('level-buttons-container'); const resetButton = document.getElementById('reset-progress-btn'); const reviewBtn = document.getElementById('review-btn'); const reviewContainer = document.getElementById('review-items-container'); const muteBtn = document.getElementById('mute-btn'); const fullscreenBtn = document.getElementById('fullscreen-btn'); const timerDisplay = document.getElementById('timer-display'); const timeLeftSpan = document.getElementById('time-left');
+            const interactionArea = document.getElementById('interaction-area'); const livesDisplay = document.getElementById('lives-display'); const progressBarInner = document.getElementById('progress-bar-inner'); const questionImage = document.getElementById('question-image'); const questionImageFallback = document.getElementById('question-image-fallback'); const charDisplay = document.getElementById('char-display'); const bopomofoAnswer = document.getElementById('bopomofo-answer'); const feedbackMessage = document.getElementById('feedback-message'); const answerHintCard = document.getElementById('answer-hint-card'); const levelSelectContainer = document.getElementById('level-buttons-container'); const resetButton = document.getElementById('reset-progress-btn'); const reviewBtn = document.getElementById('review-btn'); const reviewContainer = document.getElementById('review-items-container'); const muteBtn = document.getElementById('mute-btn'); const fullscreenBtn = document.getElementById('fullscreen-btn'); const timerDisplay = document.getElementById('timer-display'); const timeLeftSpan = document.getElementById('time-left');
             const comboDisplay = document.getElementById('combo-display'); const speechBtn = document.getElementById('speech-btn'); const hintBtn = document.getElementById('hint-btn'); const achievementsBtn = document.getElementById('achievements-btn'); const backToStartBtn = document.getElementById('back-to-start-btn'); const achievementsContainer = document.getElementById('achievements-container');
             let gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; let currentLevelIndex = 0, lives = 3, currentQuestions = [], currentQuestionIndex = 0, correctAnswersInLevel = 0, userAnswer = '', isChecking = false, activeScreen = 'start', levelResults = [], isMuted = false;
             let audioContext, bgmInterval, countdownInterval, timeRemaining;
@@ -1176,6 +1214,7 @@
 
                     feedbackMessage.textContent = '答對了！太棒了！'; feedbackMessage.className = 'feedback-correct';
                     interactionArea.classList.add('correct'); triggerConfetti();
+                    if (navigator.vibrate) navigator.vibrate(50); // 震動回饋
                     progressBarInner.style.width = `${(correctAnswersInLevel / currentQuestions.length) * 100}%`;
 
                     // 加倍獎勵時間
@@ -1187,6 +1226,19 @@
                 } else {
                     currentCombo = 0; comboDisplay.classList.remove('active'); // Reset Combo
                     playSound('wrong'); lives--; updateLivesDisplay();
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]); // 震動回饋
+
+                    // 展示正確答案小卡
+                    const label = timeoutObj ? `⏰ ${correctAnswer}` : `正確：${correctAnswer}`;
+                    answerHintCard.textContent = label;
+                    answerHintCard.classList.remove('hide');
+                    void answerHintCard.offsetWidth;
+                    answerHintCard.classList.add('show');
+                    setTimeout(() => {
+                        answerHintCard.classList.remove('show');
+                        answerHintCard.classList.add('hide');
+                    }, 1800);
+
                     feedbackMessage.textContent = timeoutObj ? `時間到！答案是 ${correctAnswer}` : `差一點點！是 ${correctAnswer}`; feedbackMessage.className = 'feedback-wrong';
                     interactionArea.classList.add('wrong');
                     setTimeout(() => {
@@ -1269,14 +1321,20 @@
             function loadQuestion() {
                 if (currentQuestionIndex >= currentQuestions.length) { endLevel(true); return; }
                 userAnswer = ''; isChecking = false; feedbackMessage.textContent = ''; updateAnswerDisplay();
-                const q = currentQuestions[currentQuestionIndex]; questionImage.src = q.image; charDisplay.textContent = q.char;
+                const q = currentQuestions[currentQuestionIndex];
 
-                // Auto read out the question (optional, currently triggered by button)
+                // 重設圖片與 Fallback 狀態
+                questionImage.style.display = 'block';
+                questionImageFallback.style.display = 'none';
+                questionImage.src = q.image;
+                questionImageFallback.textContent = gameLevels[currentLevelIndex].icon; // 使用關卡圖示作為保底
+
+                charDisplay.textContent = q.char;
                 speechBtn.onclick = () => speakWord(q.char);
 
-                // Resume Timer for Hard Mode
                 if (currentLevelIndex >= 3) {
                     timerDisplay.style.display = 'block';
+                    timeRemaining = 20 + (currentQuestionIndex * 2); // 簡單動態時間調整
                     startTimer();
                 } else {
                     timerDisplay.style.display = 'none';
