@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ㄅㄆㄇ 注音大挑戰 🎲 </title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
+
+        :root {
+            /* v2.0 Claymorphism 主色彩盤 (UI UX Pro Max 推薦) */
+            --primary-color: #4F46E5;
+            /* 活力靛藍 */
+            --primary-color-hover: #4338CA;
+            --secondary-color: #818CF8;
+            /* 柔和藍 */
+            --bg-color: #EEF2FF;
+            /* 極淡藍背景 */
+            --text-color: #1E1B4B;
+            /* 深邃午夜藍 (高對比度文字) */
+
+            /* CTA 與回饋色彩 */
+            --accent-color: #F97316;
+            /* 元氣橘 */
+            --accent-color-hover: #EA580C;
+            --heart-red: #EF4444;
+            /* 錯誤紅/愛心紅 */
+
+            /* Claymorphism 黏土風格專用陰影變數 */
+            --clay-shadow-out: 8px 8px 16px rgba(166, 180, 246, 0.5), -8px -8px 16px rgba(255, 255, 255, 0.9);
+            --clay-shadow-btn: 3px 6px 0px rgba(0, 0, 0, 0.15), inset 0px 4px 5px rgba(255, 255, 255, 0.4), inset 0px -4px 5px rgba(0, 0, 0, 0.1);
+            --clay-shadow-btn-active: 0px 0px 0px rgba(0, 0, 0, 0), inset 0px 6px 6px rgba(0, 0, 0, 0.15), inset 0px -2px 5px rgba(255, 255, 255, 0.3);
+
+            /* 圓角尺寸設定 */
+            --border-radius-btn: 20px;
+            --border-radius-card: 32px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+            background-color: var(--primary-color);
+            background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.05) 20px, transparent 20px, transparent 40px);
+        }
+
+        body {
+            font-family: 'Baloo 2', 'Comic Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-world {
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            max-height: 900px;
+            background: var(--bg-color);
+            box-shadow: var(--clay-shadow-out);
+            border-radius: var(--border-radius-card);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 4px solid #fff;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease-in-out, visibility 0.4s;
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .btn {
+            font-family: 'Baloo 2', 'Comic Neue', sans-serif;
+            font-weight: 700;
+            font-size: clamp(20px, 4vw, 26px);
+            padding: 14px 36px;
+            border-radius: var(--border-radius-btn);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: var(--clay-shadow-btn);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-4px) scale(1.03);
+            background-color: var(--primary-color-hover);
+        }
+
+        .btn:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: var(--clay-shadow-btn-active);
+        }
+
+        #start-screen {
+            background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);
+        }
+
+        #start-screen h1 {
+            font-family: 'Baloo 2', sans-serif;
+            font-size: clamp(40px, 12vw, 60px);
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 2px 4px 0px var(--primary-color), -2px -1px 0px var(--accent-color);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        #level-select-screen {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+
+        #level-select-screen h2 {
+            font-size: clamp(30px, 8vw, 40px);
+            margin-bottom: 20px;
+            color: var(--text-color);
+            text-shadow: 1px 1px 0px #fff;
+        }
+
+        .map-buttons-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .level-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .level-btn {
+            width: 120px;
+            height: 120px;
+            font-size: 24px;
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 700;
+            border-radius: var(--border-radius-btn);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            line-height: 1.2;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .level-btn.locked {
+            background: #D1D5DB;
+            color: #9CA3AF;
+            box-shadow: inset 0px 4px 5px rgba(255, 255, 255, 0.4), inset 0px -4px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-btn .hearts {
+            font-size: 18px;
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .level-icon {
+            font-size: 36px;
+            margin-bottom: 5px;
+            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        #reset-progress-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 14px;
+            padding: 8px 15px;
+            background-color: var(--danger-color);
+        }
+
+        #fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 16px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            line-height: 40px;
+        }
+
+        #timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e5383b;
+            margin: 0 10px;
+            display: none;
+        }
+
+        .timer-warning {
+            animation: pulse-red 0.5s infinite alternate;
+        }
+
+        @keyframes pulse-red {
+            from {
+                color: #e5383b;
+                transform: scale(1);
+            }
+
+            to {
+                color: #800f13;
+                transform: scale(1.1);
+            }
+        }
+
+        #game-screen {
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .lives {
+            font-size: 24px;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 15px;
+            background: #e8e5d9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+
+        .progress-bar-inner {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-color);
+            transition: width 0.3s;
+        }
+
+        .top-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            line-height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            box-shadow: var(--clay-shadow-btn);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .icon-btn:active {
+            transform: translateY(2px) scale(0.95);
+            box-shadow: var(--clay-shadow-btn-active);
+        }
+
+        .quiz-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .question-image {
+            width: clamp(150px, 30vh, 200px);
+            height: clamp(150px, 30vh, 200px);
+            object-fit: contain;
+            margin-bottom: 20px;
+            z-index: 2;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.15));
+        }
+
+        #combo-display {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: clamp(24px, 6vw, 36px);
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 4px 6px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+
+        #combo-display.active {
+            opacity: 1;
+            transform: scale(1) rotate(-10deg);
+        }
+
+        .speech-btn {
+            font-size: 24px;
+            padding: 5px 10px;
+            border-radius: 50%;
+            background-color: #38bdf8;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            box-shadow: var(--clay-shadow-btn);
+            cursor: pointer;
+            margin-bottom: 15px;
+            z-index: 2;
+            transition: all 0.2s;
+        }
+
+        .speech-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .speech-btn:active {
+            transform: translateY(2px) scale(0.95);
+            box-shadow: var(--clay-shadow-btn-active);
+        }
+
+        #interaction-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        #char-display {
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 700;
+            font-size: clamp(100px, 25vw, 150px);
+            margin-right: 20px;
+            color: var(--text-color);
+            text-shadow: 3px 3px 0px #fff;
+        }
+
+        #bopomofo-answer {
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 700;
+            font-size: clamp(38px, 8vw, 45px);
+            color: var(--primary-color);
+            background: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .keyboard {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: var(--border-radius-card);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .bopomofo-group {
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .bopomofo-btn {
+            font-family: 'Comic Neue', sans-serif;
+            font-weight: 700;
+            width: clamp(38px, 9vw, 48px);
+            height: clamp(38px, 9vw, 48px);
+            font-size: clamp(20px, 4.5vw, 26px);
+            margin: 3px;
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: #fff;
+            color: var(--text-color);
+            box-shadow: var(--clay-shadow-btn);
+        }
+
+        .bopomofo-btn:hover {
+            transform: translateY(-2px);
+            color: var(--primary-color);
+        }
+
+        .bopomofo-btn:active {
+            transform: translateY(2px) scale(0.95);
+            box-shadow: var(--clay-shadow-btn-active);
+            background-color: var(--bg-color);
+        }
+
+        #feedback-message {
+            font-family: 'Baloo 2', sans-serif;
+            font-size: clamp(22px, 5vw, 26px);
+            font-weight: 700;
+            height: 35px;
+            margin-top: 15px;
+            text-shadow: 1px 1px 0px #fff;
+        }
+
+        .feedback-correct {
+            color: var(--success-color);
+        }
+
+        .feedback-wrong {
+            color: var(--danger-color);
+        }
+
+        @keyframes celebrate {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        #interaction-area.correct {
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        #interaction-area.wrong {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 15px;
+            opacity: 1;
+            animation: fall 2s ease-out forwards;
+        }
+
+        #achievements-screen {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            justify-content: flex-start;
+            padding-top: 40px;
+        }
+
+        #achievements-screen h2 {
+            font-size: clamp(30px, 8vw, 40px);
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        #achievements-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            max-height: 70%;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .achievement-badge {
+            width: 110px;
+            height: 110px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--clay-shadow-btn);
+            border: 4px solid #eee;
+            filter: grayscale(100%);
+            opacity: 0.5;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(5px);
+        }
+
+        .achievement-badge.unlocked {
+            filter: grayscale(0%);
+            opacity: 1;
+            border-color: #fca311;
+            box-shadow: var(--clay-shadow-out), inset 0 0 10px rgba(252, 163, 17, 0.5);
+            animation: unlock-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .achievement-badge .icon {
+            font-size: 40px;
+            margin-bottom: 5px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .achievement-badge .name {
+            font-size: 16px;
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        @keyframes unlock-pop {
+            0% {
+                transform: scale(0.5);
+            }
+
+            80% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .keyboard-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .hint-btn {
+            background-color: var(--warning-color);
+            color: #fff;
+            box-shadow: var(--clay-shadow-btn);
+        }
+
+        .hint-btn:disabled {
+            background-color: #D1D5DB;
+            color: #9CA3AF;
+            box-shadow: inset 0px 4px 5px rgba(255, 255, 255, 0.4), inset 0px -4px 5px rgba(0, 0, 0, 0.1);
+            cursor: not-allowed;
+            border-color: transparent;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(200px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        #level-end-screen {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+        }
+
+        #level-review-screen {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        #level-end-screen h2,
+        #level-review-screen h2 {
+            font-size: clamp(30px, 8vw, 40px);
+            color: #fff;
+            text-shadow: 2px 2px 0px var(--primary-color);
+        }
+
+        #level-end-hearts {
+            font-size: clamp(30px, 8vw, 40px);
+            margin: 10px 0;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+        }
+
+        #level-end-hearts .heart {
+            display: inline-block;
+            color: #ddd;
+            transition: color 0.3s;
+        }
+
+        #level-end-hearts .heart.active {
+            color: var(--heart-red);
+            animation: heart-pop 0.5s ease-out;
+        }
+
+        @keyframes heart-pop {
+            0% {
+                transform: scale(0);
+            }
+
+            80% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #level-review-screen {
+            justify-content: space-between;
+        }
+
+        #review-items-container {
+            width: 100%;
+            max-height: 60%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .review-item {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius-btn);
+            padding: 15px;
+            width: 160px;
+            box-shadow: var(--clay-shadow-btn);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px solid transparent;
+        }
+
+        .review-item.wrong {
+            border-color: var(--danger-color);
+            background-color: #FEF2F2;
+        }
+
+        .review-item.correct {
+            border-color: var(--success-color);
+            background-color: #F0FDF4;
+        }
+
+        .review-text {
+            font-family: 'Baloo 2', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: left;
+            color: var(--text-color);
+        }
+
+        .review-text span {
+            display: block;
+            font-size: 16px;
+            font-family: 'Comic Neue', sans-serif;
+            color: var(--primary-color);
+        }
+
+        .review-icon {
+            font-size: 30px;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+        }
+
+        .phonetic-block-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .phonetic-wrapper {
+            position: relative;
+            padding-top: 0.5em;
+        }
+
+        .light-tone-dot {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .phonetic-block-horizontal {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .phonetic-block-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .vowel-cluster {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 0.8em;
+            line-height: 1;
+            margin-left: 2px;
+        }
+
+        .phonetic-block-vertical .vowel-cluster {
+            margin-left: 0;
+        }
+
+        .tone-block {
+            font-size: 0.8em;
+            line-height: 1;
+            margin-left: 5px;
+            position: relative;
+            top: 8px;
+        }
+
+        @media (min-width: 600px) and (min-height: 600px) {
+            .game-world {
+                max-width: 95vw;
+                max-height: 95vh;
+            }
+
+            .level-btn {
+                width: 150px;
+                height: 150px;
+                font-size: 30px;
+            }
+
+            .level-icon {
+                font-size: 40px;
+            }
+
+            .achievement-badge {
+                width: 130px;
+                height: 130px;
+            }
+
+            .achievement-badge .icon {
+                font-size: 50px;
+            }
+
+            .quiz-content {
+                flex-direction: row;
+            }
+
+            .question-image {
+                width: 30vh;
+                height: 30vh;
+                margin-right: 5vw;
+                margin-bottom: 0;
+            }
+
+            .speech-btn {
+                margin-right: 20px;
+                margin-bottom: 0;
+            }
+        }
+
+        /* 動態主題背景效果 */
+        #game-screen {
+            transition: background-color 0.5s;
+        }
+
+        .theme-rain {
+            background: linear-gradient(to bottom, #778da9 0%, #415a77 100%);
+        }
+
+        .theme-rain .quiz-content {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="20"><line x1="5" y1="0" x2="5" y2="10" stroke="%23ffffff" stroke-width="1" stroke-dasharray="2, 5" opacity="0.3" /></svg>');
+            background-size: 20px 40px;
+            animation: rain-fall 1s linear infinite;
+        }
+
+        @keyframes rain-fall {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 0 40px;
+            }
+        }
+
+        .theme-star {
+            background: linear-gradient(to bottom, #020024 0%, #090979 35%, #00d4ff 100%);
+            color: white;
+        }
+
+        .theme-warm {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        }
+
+        .theme-food {
+            background-color: #fff3b0;
+        }
+
+        .theme-fruit {
+            background-color: #ffecd1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-world">
+        <!-- 畫面容器 -->
+        <div id="start-screen" class="screen active">
+            <h1>ㄅㄆㄇ 森林派對</h1>
+            <p>準備好開始學習了嗎？</p><button id="start-game-btn" class="btn">開始冒險</button>
+            <button id="achievements-btn" class="btn" style="background-color: #fca311; box-shadow: 0 4px #d08c00;">🏆
+                榮耀榜</button>
+            <button id="fullscreen-btn" class="btn icon-btn" title="全螢幕">⛶</button>
+        </div>
+        <div id="level-select-screen" class="screen">
+            <h2>選擇關卡</h2>
+            <div class="map-buttons-row">
+                <button id="reset-progress-btn" class="btn">重置進度</button>
+            </div>
+            <div id="level-buttons-container" class="level-buttons"></div>
+        </div>
+        <div id="achievements-screen" class="screen">
+            <h2>🏆 榮耀徽章</h2>
+            <div id="achievements-container"></div><br><button id="back-to-start-btn" class="btn">回首頁</button>
+        </div>
+        <div id="game-screen" class="screen">
+            <div class="top-bar">
+                <div id="lives-display" class="lives"></div>
+                <div id="timer-display">⏱️ <span id="time-left"></span></div>
+                <div class="progress-bar">
+                    <div id="progress-bar-inner"></div>
+                </div>
+                <div class="top-buttons"><button id="mute-btn" class="btn icon-btn" title="聲音切換">🔊</button><button
+                        id="quit-level-btn" class="btn icon-btn" title="放棄任務">↩️</button></div>
+            </div>
+            <div class="quiz-content">
+                <div id="combo-display"></div>
+                <img id="question-image" src="">
+                <button id="speech-btn" class="speech-btn" title="聆聽發音">📢</button>
+                <div id="interaction-area">
+                    <div id="char-display"></div>
+                    <div id="bopomofo-answer"></div>
+                </div>
+                <div id="feedback-message"></div>
+            </div>
+            <div class="keyboard">
+                <div class="bopomofo-group" id="consonants"></div>
+                <div class="bopomofo-group" id="vowels"></div>
+                <div class="bopomofo-group" id="tones"></div>
+                <div class="keyboard-controls">
+                    <button id="hint-btn" class="btn hint-btn" style="font-size:16px; padding: 6px 15px;">💡 提示:
+                        1</button>
+                    <button id="clear-btn" class="btn" style="font-size:16px; padding: 6px 15px;">🗑️ 清除</button>
+                    <button id="check-btn" class="btn"
+                        style="font-size:16px; padding: 6px 20px; background-color: #e5383b; box-shadow: 0 4px #800f13;">送出答案</button>
+                </div>
+            </div>
+        </div>
+        <div id="level-end-screen" class="screen">
+            <h2 id="level-end-title"></h2>
+            <div id="level-end-hearts"><span class="heart">🤍</span><span class="heart">🤍</span><span
+                    class="heart">🤍</span></div>
+            <p id="level-end-message"></p><button id="review-btn" class="btn">學習回顧</button>
+        </div>
+        <div id="level-review-screen" class="screen">
+            <h2>本關回顧</h2>
+            <div id="review-items-container"></div>
+            <div><button id="retry-level-btn" class="btn">再玩一次</button><button id="next-level-btn"
+                    class="btn">下一關</button><button id="back-to-map-btn" class="btn">回地圖</button></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 【核心升級】擴充題庫 ---
+        const gameLevels = [
+            { name: "水果", icon: "🍎", questions: [{ char: '蘋', bopomofo: 'ㄆㄧㄥˊ', image: './assets/images/apple.png' }, { char: '蕉', bopomofo: 'ㄐㄧㄠ', image: './assets/images/banana.png' }, { char: '瓜', bopomofo: 'ㄍㄨㄚ', image: './assets/images/watermelon.png' }, { char: '莓', bopomofo: 'ㄇㄟˊ', image: './assets/images/strawberry.png' }, { char: '桃', bopomofo: 'ㄊㄠˊ', image: './assets/images/peach.png' }, { char: '萄', bopomofo: 'ㄊㄠˊ', image: './assets/images/grapes.png' }, { char: '橘', bopomofo: 'ㄐㄩˊ', image: './assets/images/mandarin.png' }, { char: '梨', bopomofo: 'ㄌㄧˊ', image: './assets/images/pear.png' }, { char: '檬', bopomofo: 'ㄇㄥˊ', image: './assets/images/lemon.png' }] },
+            { name: "動物", icon: "🐶", questions: [{ char: '貓', bopomofo: 'ㄇㄠ', image: './assets/images/cat.png' }, { char: '狗', bopomofo: 'ㄍㄡˇ', image: './assets/images/dog.png' }, { char: '兔', bopomofo: 'ㄊㄨˋ', image: './assets/images/rabbit.png' }, { char: '魚', bopomofo: 'ㄩˊ', image: './assets/images/fish.png' }, { char: '熊', bopomofo: 'ㄒㄩㄥˊ', image: './assets/images/teddy-bear.png' }, { char: '虎', bopomofo: 'ㄏㄨˇ', image: 'https://img.icons8.com/color/200/tiger.png' }, { char: '獅', bopomofo: 'ㄕ', image: './assets/images/lion.png' }, { char: '象', bopomofo: 'ㄒㄧㄤˋ', image: './assets/images/elephant.png' }, { char: '猴', bopomofo: 'ㄏㄡˊ', image: 'https://img.icons8.com/color/200/monkey.png' }, { char: '鳥', bopomofo: 'ㄋㄧㄠˇ', image: './assets/images/bird.png' }] },
+            { name: "交通", icon: "🚗", questions: [{ char: '車', bopomofo: 'ㄔㄜ', image: './assets/images/car.png' }, { char: '船', bopomofo: 'ㄔㄨㄢˊ', image: 'https://img.icons8.com/color/200/boat.png' }, { char: '機', bopomofo: 'ㄐㄧ', image: './assets/images/airplane.png' }, { char: '火', bopomofo: 'ㄏㄨㄛˇ', image: './assets/images/train.png' }, { char: '單', bopomofo: 'ㄉㄢ', image: './assets/images/bicycle.png' }, { char: '公', bopomofo: 'ㄍㄨㄥ', image: './assets/images/bus.png' }, { char: '卡', bopomofo: 'ㄎㄚˇ', image: './assets/images/truck.png' }] },
+            { name: "身體", icon: "✋", questions: [{ char: '頭', bopomofo: 'ㄊㄡˊ', image: './assets/images/head.png' }, { char: '手', bopomofo: 'ㄕㄡˇ', image: './assets/images/hand.png' }, { char: '脚', bopomofo: 'ㄐㄧㄠˇ', image: 'https://img.icons8.com/color/200/footprint.png' }, { char: '眼', bopomofo: 'ㄧㄢˇ', image: './assets/images/visible.png' }, { char: '口', bopomofo: 'ㄎㄡˇ', image: './assets/images/mouth.png' }, { char: '鼻', bopomofo: 'ㄅㄧˊ', image: 'https://img.icons8.com/color/200/nose.png' }, { char: '耳', bopomofo: 'ㄦˇ', image: 'https://img.icons8.com/color/200/ear.png' }] },
+            { name: "家人", icon: "👨‍👩‍👧‍👦", questions: [{ char: '爸', bopomofo: 'ㄅㄚˋ', image: './assets/images/father.png' }, { char: '媽', bopomofo: 'ㄇㄚ', image: './assets/images/mother.png' }, { char: '哥', bopomofo: 'ㄍㄜ', image: './assets/images/boy.png' }, { char: '姐', bopomofo: 'ㄐㄧㄝˇ', image: './assets/images/girl.png' }, { char: '弟', bopomofo: 'ㄉㄧˋ', image: './assets/images/baby-boy.png' }, { char: '妹', bopomofo: 'ㄇㄟˋ', image: './assets/images/baby-girl.png' }, { char: '爺', bopomofo: 'ㄧㄝˊ', image: './assets/images/grandfather.png' }] },
+            { name: "學校", icon: "🏫", questions: [{ char: '書', bopomofo: 'ㄕㄨ', image: './assets/images/book.png' }, { char: '筆', bopomofo: 'ㄅㄧˇ', image: './assets/images/pen.png' }, { char: '尺', bopomofo: 'ㄔˇ', image: './assets/images/ruler.png' }, { char: '桌', bopomofo: 'ㄓㄨㄛ', image: './assets/images/desk.png' }, { char: '椅', bopomofo: 'ㄧˇ', image: './assets/images/chair.png' }, { char: '燈', bopomofo: 'ㄉㄥ', image: 'https://img.icons8.com/color/200/table-lamp.png' }, { char: '門', bopomofo: 'ㄇㄣˊ', image: './assets/images/door.png' }] },
+            { name: "顏色", icon: "🎨", questions: [{ char: '紅', bopomofo: 'ㄏㄨㄥˊ', image: './assets/images/red.png' }, { char: '黃', bopomofo: 'ㄏㄨㄤˊ', image: './assets/images/yellow.png' }, { char: '藍', bopomofo: 'ㄌㄢˊ', image: './assets/images/blue.png' }, { char: '綠', bopomofo: 'ㄌㄩˋ', image: './assets/images/green.png' }, { char: '白', bopomofo: 'ㄅㄞˊ', image: './assets/images/white.png' }, { char: '黑', bopomofo: 'ㄏㄟ', image: './assets/images/black.png' }] },
+            { name: "天氣", icon: "⛅", questions: [{ char: '晴', bopomofo: 'ㄑㄧㄥˊ', image: './assets/images/sunny.png' }, { char: '雨', bopomofo: 'ㄩˇ', image: './assets/images/rain.png' }, { char: '雲', bopomofo: 'ㄩㄣˊ', image: 'https://img.icons8.com/color/200/clouds.png' }, { char: '雪', bopomofo: 'ㄒㄩㄝˇ', image: './assets/images/snow.png' }, { char: '風', bopomofo: 'ㄈㄥ', image: './assets/images/wind.png' }, { char: '雷', bopomofo: 'ㄌㄟˊ', image: './assets/images/storm.png' }, { char: '虹', bopomofo: 'ㄏㄨㄥˊ', image: './assets/images/rainbow.png' }] },
+            { name: "形狀", icon: "🔺", questions: [{ char: '圓', bopomofo: 'ㄩㄢˊ', image: 'https://img.icons8.com/color/200/filled-circle.png' }, { char: '方', bopomofo: 'ㄈㄤ', image: './assets/images/square.png' }, { char: '角', bopomofo: 'ㄐㄧㄠˇ', image: './assets/images/triangle.png' }, { char: '星', bopomofo: 'ㄒㄧㄥ', image: './assets/images/star.png' }, { char: '心', bopomofo: 'ㄒㄧㄣ', image: './assets/images/heart.png' }] },
+            { name: "食物", icon: "🍔", questions: [{ char: '飯', bopomofo: 'ㄈㄢˋ', image: './assets/images/rice.png' }, { char: '麵', bopomofo: 'ㄇㄧㄢˋ', image: 'https://img.icons8.com/color/200/noodles.png' }, { char: '蛋', bopomofo: 'ㄉㄢˋ', image: './assets/images/egg.png' }, { char: '肉', bopomofo: 'ㄖㄡˋ', image: 'https://img.icons8.com/color/200/meat.png' }, { char: '菜', bopomofo: 'ㄘㄞˋ', image: './assets/images/vegetable.png' }, { char: '湯', bopomofo: 'ㄊㄤ', image: 'https://img.icons8.com/color/200/soup-plate.png' }, { char: '糖', bopomofo: 'ㄊㄤˊ', image: 'https://img.icons8.com/color/200/candy.png' }] }
+        ];
+        const bopomofoParts = { consonants: ['ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ', 'ㄍ', 'ㄎ', 'ㄏ', 'ㄐ', 'ㄑ', 'ㄒ', 'ㄓ', 'ㄔ', 'ㄕ', 'ㄖ', 'ㄗ', 'ㄘ', 'ㄙ'], medials: ['ㄧ', 'ㄨ', 'ㄩ'], finals: ['ㄚ', 'ㄛ', 'ㄜ', 'ㄝ', 'ㄞ', 'ㄟ', 'ㄠ', 'ㄡ', 'ㄢ', 'ㄣ', 'ㄤ', 'ㄥ', 'ㄦ'], tones: ['ˊ', 'ˇ', 'ˋ', '˙'] };
+        const topSideConsonants = ['ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ', 'ㄍ', 'ㄎ', 'ㄏ']; const specialStackConsonants = ['ㄐ', 'ㄑ', 'ㄒ']; const allVowelsForButtons = [...new Set([...bopomofoParts.medials, ...bopomofoParts.finals])];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const screens = { start: document.getElementById('start-screen'), levelSelect: document.getElementById('level-select-screen'), game: document.getElementById('game-screen'), levelEnd: document.getElementById('level-end-screen'), levelReview: document.getElementById('level-review-screen'), achievements: document.getElementById('achievements-screen') };
+            const interactionArea = document.getElementById('interaction-area'); const livesDisplay = document.getElementById('lives-display'); const progressBarInner = document.getElementById('progress-bar-inner'); const questionImage = document.getElementById('question-image'); const charDisplay = document.getElementById('char-display'); const bopomofoAnswer = document.getElementById('bopomofo-answer'); const feedbackMessage = document.getElementById('feedback-message'); const levelSelectContainer = document.getElementById('level-buttons-container'); const resetButton = document.getElementById('reset-progress-btn'); const reviewBtn = document.getElementById('review-btn'); const reviewContainer = document.getElementById('review-items-container'); const muteBtn = document.getElementById('mute-btn'); const fullscreenBtn = document.getElementById('fullscreen-btn'); const timerDisplay = document.getElementById('timer-display'); const timeLeftSpan = document.getElementById('time-left');
+            const comboDisplay = document.getElementById('combo-display'); const speechBtn = document.getElementById('speech-btn'); const hintBtn = document.getElementById('hint-btn'); const achievementsBtn = document.getElementById('achievements-btn'); const backToStartBtn = document.getElementById('back-to-start-btn'); const achievementsContainer = document.getElementById('achievements-container');
+            let gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; let currentLevelIndex = 0, lives = 3, currentQuestions = [], currentQuestionIndex = 0, correctAnswersInLevel = 0, userAnswer = '', isChecking = false, activeScreen = 'start', levelResults = [], isMuted = false;
+            let audioContext, bgmInterval, countdownInterval, timeRemaining;
+            let currentCombo = 0, hintsLeft = 1;
+            const QUESTIONS_PER_LEVEL = 5;
+            const TIME_ADD_PER_QUESTION = 15; // 困難模式下每題增加 15 秒
+
+            function speakWord(word) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'zh-TW';
+                    utterance.rate = 0.8;
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+
+            function updateDynamicBackground(levelIndex) {
+                const gameScreen = document.getElementById('game-screen');
+                gameScreen.className = 'screen active'; // reset
+                const themeName = gameLevels[levelIndex].name;
+                if (themeName === '天氣') gameScreen.classList.add('theme-rain');
+                else if (themeName === '顏色') gameScreen.classList.add('theme-star');
+                else if (themeName === '食物') gameScreen.classList.add('theme-food');
+                else if (themeName === '水果') gameScreen.classList.add('theme-fruit');
+                else gameScreen.classList.add('theme-warm');
+            }
+
+            function renderAchievements() {
+                achievementsContainer.innerHTML = '';
+                gameLevels.forEach(level => {
+                    const isUnlocked = gameState.achievements && gameState.achievements.includes(level.name);
+                    const badge = document.createElement('div');
+                    badge.className = `achievement-badge ${isUnlocked ? 'unlocked' : ''}`;
+                    badge.innerHTML = `<div class="icon">${level.icon}</div><div class="name">${level.name}通關</div>`;
+                    achievementsContainer.appendChild(badge);
+                });
+            }
+
+            function saveGameState() { localStorage.setItem('bopomofoPartyState', JSON.stringify(gameState)); }
+            function loadGameState() { const savedState = localStorage.getItem('bopomofoPartyState'); if (savedState) { gameState = JSON.parse(savedState); } }
+            function initAudio() { if (!audioContext) { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } }
+            function playNote(frequency, type = 'sine', duration = 0.1) { if (isMuted || !audioContext) return; try { const o = audioContext.createOscillator(), g = audioContext.createGain(); o.connect(g); g.connect(audioContext.destination); o.type = type; o.frequency.setValueAtTime(frequency, audioContext.currentTime); g.gain.setValueAtTime(0.2, audioContext.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration); o.start(); o.stop(audioContext.currentTime + duration); } catch (e) { } }
+            function playSound(type) { if (type === 'correct') playNote(600, 'sine', 0.5); else if (type === 'wrong') playNote(150, 'square', 0.2); else if (type === 'touch') playNote(440, 'triangle', 0.1); }
+            function toggleBgm() { if (isMuted || !audioContext) { clearInterval(bgmInterval); bgmInterval = null; return; } if (bgmInterval) return; const notes = [261, 293, 329, 349]; let noteIndex = 0; bgmInterval = setInterval(() => { playNote(notes[noteIndex % notes.length], 'sine', 0.3); noteIndex++; }, 500); }
+            function showScreen(screenId) { screens[activeScreen].classList.remove('active'); activeScreen = screenId; screens[activeScreen].classList.add('active'); }
+            function triggerConfetti() { for (let i = 0; i < 30; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = `${Math.random() * 100}%`; c.style.top = `${-20 - Math.random() * 20}px`; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animationDelay = `${Math.random() * 0.5}s`; interactionArea.appendChild(c); setTimeout(() => c.remove(), 2000); } }
+
+            function checkAnswer(timeoutObj = false) {
+                if (isChecking) return; isChecking = true;
+                clearInterval(countdownInterval);
+                const correctAnswer = currentQuestions[currentQuestionIndex].bopomofo;
+                const isCorrect = !timeoutObj && userAnswer === correctAnswer;
+                levelResults.push({ question: currentQuestions[currentQuestionIndex], isCorrect: isCorrect });
+                if (isCorrect) {
+                    playSound('correct'); correctAnswersInLevel++;
+
+                    // Combo Logic
+                    currentCombo++;
+                    if (currentCombo >= 2) {
+                        comboDisplay.textContent = `${currentCombo} 連擊!`;
+                        comboDisplay.classList.remove('active');
+                        void comboDisplay.offsetWidth; // trigger reflow
+                        comboDisplay.classList.add('active');
+                    } else {
+                        comboDisplay.classList.remove('active');
+                    }
+
+                    feedbackMessage.textContent = '答對了！太棒了！'; feedbackMessage.className = 'feedback-correct';
+                    interactionArea.classList.add('correct'); triggerConfetti();
+                    progressBarInner.style.width = `${(correctAnswersInLevel / currentQuestions.length) * 100}%`;
+
+                    // 加倍獎勵時間
+                    if (currentLevelIndex >= 3) {
+                        timeRemaining += TIME_ADD_PER_QUESTION;
+                    }
+
+                    setTimeout(() => { interactionArea.classList.remove('correct'); currentQuestionIndex++; loadQuestion(); }, 2000);
+                } else {
+                    currentCombo = 0; comboDisplay.classList.remove('active'); // Reset Combo
+                    playSound('wrong'); lives--; updateLivesDisplay();
+                    feedbackMessage.textContent = timeoutObj ? `時間到！答案是 ${correctAnswer}` : `差一點點！是 ${correctAnswer}`; feedbackMessage.className = 'feedback-wrong';
+                    interactionArea.classList.add('wrong');
+                    setTimeout(() => {
+                        interactionArea.classList.remove('wrong');
+                        if (lives <= 0) { endLevel(false); } else { currentQuestionIndex++; loadQuestion(); }
+                    }, 2500);
+                }
+            }
+
+            function updateLevelSelectScreen() {
+                levelSelectContainer.innerHTML = '';
+                gameLevels.forEach((level, index) => {
+                    const isLocked = (index + 1) > gameState.unlockedLevels;
+                    const btn = document.createElement('button'); btn.className = `btn level-btn ${isLocked ? 'locked' : ''}`; btn.disabled = isLocked;
+                    const hearts = gameState.hearts[index + 1] || 0;
+                    btn.innerHTML = `<div class="level-icon">${level.icon}</div><div>${level.name}</div><div class="hearts">${'❤️'.repeat(hearts)}${'🤍'.repeat(3 - hearts)}</div>`;
+                    if (!isLocked) { btn.onclick = () => { playSound('touch'); startGame(index); }; }
+                    levelSelectContainer.appendChild(btn);
+                });
+            }
+
+            function populateReviewScreen() {
+                reviewContainer.innerHTML = '';
+                levelResults.forEach(result => {
+                    const item = document.createElement('div'); item.className = `review-item ${result.isCorrect ? 'correct' : 'wrong'}`;
+                    item.innerHTML = `<div class="review-text">${result.question.char}<span>${result.question.bopomofo}</span></div><div class="review-icon">${result.isCorrect ? '✅' : '❌'}</div>`;
+                    reviewContainer.appendChild(item);
+                });
+                const nextBtn = screens.levelReview.querySelector('#next-level-btn');
+                const wasSuccess = lives > 0;
+                nextBtn.style.display = (wasSuccess && currentLevelIndex + 1 < gameLevels.length) ? 'inline-block' : 'none';
+            }
+
+            function endLevel(isSuccess) {
+                clearInterval(countdownInterval);
+                const endScreen = screens.levelEnd, title = endScreen.querySelector('h2'), heartsDisplay = endScreen.querySelectorAll('.heart'), msg = endScreen.querySelector('p');
+                const heartsEarned = isSuccess ? lives : 0;
+                if (isSuccess) {
+                    title.textContent = "挑戰成功！";
+                    const oldHearts = gameState.hearts[currentLevelIndex + 1] || 0; gameState.hearts[currentLevelIndex + 1] = Math.max(oldHearts, heartsEarned);
+                    msg.textContent = heartsEarned === 3 ? "完美通關！太厲害了！" : "你真棒！";
+                    if (heartsEarned > 0 && (currentLevelIndex + 2 > gameState.unlockedLevels) && (currentLevelIndex + 1 < gameLevels.length)) { gameState.unlockedLevels = currentLevelIndex + 2; }
+
+                    // Achievement Unlock Logic
+                    if (heartsEarned === 3) {
+                        if (!gameState.achievements) gameState.achievements = [];
+                        const themeName = gameLevels[currentLevelIndex].name;
+                        if (!gameState.achievements.includes(themeName)) {
+                            gameState.achievements.push(themeName);
+                        }
+                    }
+                } else {
+                    title.textContent = "挑戰失敗"; msg.textContent = "別灰心，看看哪裡答錯了！";
+                }
+                heartsDisplay.forEach((heart, i) => { heart.classList.remove('active'); heart.textContent = '🤍'; if (i < heartsEarned) { setTimeout(() => { heart.classList.add('active'); heart.textContent = '❤️'; }, i * 300); } });
+                saveGameState(); updateLevelSelectScreen(); showScreen('levelEnd');
+            }
+
+            function startTimer() {
+                clearInterval(countdownInterval);
+                if (currentLevelIndex < 3) return; // 前三關不計時
+
+                function updateTimeString() {
+                    const chars = ['🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚', '🕛'];
+                    timeLeftSpan.textContent = `${timeRemaining} 秒`;
+                    if (timeRemaining <= 10) { timerDisplay.classList.add('timer-warning'); } else { timerDisplay.classList.remove('timer-warning'); }
+                }
+                updateTimeString();
+
+                countdownInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimeString();
+                    if (timeRemaining <= 0) {
+                        clearInterval(countdownInterval);
+                        checkAnswer(true); // Timeout Answer
+                    }
+                }, 1000);
+            }
+
+            function loadQuestion() {
+                if (currentQuestionIndex >= currentQuestions.length) { endLevel(true); return; }
+                userAnswer = ''; isChecking = false; feedbackMessage.textContent = ''; updateAnswerDisplay();
+                const q = currentQuestions[currentQuestionIndex]; questionImage.src = q.image; charDisplay.textContent = q.char;
+
+                // Auto read out the question (optional, currently triggered by button)
+                speechBtn.onclick = () => speakWord(q.char);
+
+                // Resume Timer for Hard Mode
+                if (currentLevelIndex >= 3) {
+                    timerDisplay.style.display = 'block';
+                    startTimer();
+                } else {
+                    timerDisplay.style.display = 'none';
+                }
+            }
+            function startGame(levelIndex) {
+                currentLevelIndex = levelIndex; lives = 3; levelResults = []; correctAnswersInLevel = 0; currentCombo = 0;
+                comboDisplay.classList.remove('active');
+                hintsLeft = 1; hintBtn.textContent = '💡 提示: 1'; hintBtn.disabled = false;
+                const fullQuestionPool = gameLevels[levelIndex].questions;
+                currentQuestions = [...fullQuestionPool].sort(() => 0.5 - Math.random()).slice(0, QUESTIONS_PER_LEVEL);
+                currentQuestionIndex = 0; progressBarInner.style.width = '0%';
+                updateDynamicBackground(levelIndex);
+                updateLivesDisplay(); loadQuestion(); showScreen('game');
+            }
+            function updateLivesDisplay() { livesDisplay.textContent = '❤️'.repeat(lives); }
+            function parseBopomofo(str) { const p = { c: '', m: '', f: '', t: '' }; let r = str; for (const t of bopomofoParts.tones) { if (r.includes(t)) { p.t = t; r = r.replace(t, ''); break; } } if (r.length > 0 && bopomofoParts.consonants.includes(r[0])) { p.c = r[0]; r = r.substring(1); } if (r.length > 0 && bopomofoParts.medials.includes(r[0])) { p.m = r[0]; r = r.substring(1); } p.f = r; return p; }
+            function updateAnswerDisplay() { const p = parseBopomofo(userAnswer); let blockHTML = ''; const cH = p.c ? `<div class="consonant">${p.c}</div>` : ''; const vH = (p.m || p.f) ? `<div class="vowel-cluster">${p.m ? `<div class="medial">${p.m}</div>` : ''}${p.f ? `<div class="final">${p.f}</div>` : ''}</div>` : ''; if (specialStackConsonants.includes(p.c)) { const all = [p.c, p.m, p.f].filter(Boolean).join('<br>'); blockHTML = `<div class="phonetic-block-vertical">${all}</div>`; } else if (topSideConsonants.includes(p.c)) { blockHTML = `<div class="phonetic-block-vertical">${cH}${vH}</div>`; } else { blockHTML = `<div class="phonetic-block-horizontal">${cH}${vH}</div>`; } let finalHTML; if (p.t === '˙') { finalHTML = `<div class="phonetic-wrapper"><div class="light-tone-dot">˙</div>${blockHTML}</div>`; } else { const tH = p.t ? `<div class="tone-block">${p.t}</div>` : ''; finalHTML = `<div class="phonetic-block-wrapper">${blockHTML}${tH}</div>`; } bopomofoAnswer.innerHTML = finalHTML; }
+            function getSymbolType(s) { if (bopomofoParts.consonants.includes(s)) return 'consonant'; if (bopomofoParts.tones.includes(s)) return 'tone'; if (bopomofoParts.medials.includes(s)) return 'medial'; if (bopomofoParts.finals.includes(s)) return 'final'; return null; }
+            function createKeyboard() { const groups = { consonants: bopomofoParts.consonants, vowels: allVowelsForButtons, tones: bopomofoParts.tones }; for (const group in groups) { const container = document.getElementById(group); groups[group].forEach(symbol => { const btn = document.createElement('button'); btn.className = 'bopomofo-btn'; btn.textContent = symbol; btn.onclick = () => { playSound('touch'); let p = parseBopomofo(userAnswer); const type = getSymbolType(symbol); if (type === 'consonant') p.c = symbol; else if (type === 'tone') p.t = symbol; else if (type === 'medial') p.m = symbol; else if (type === 'final') p.f = symbol; userAnswer = p.c + p.m + p.f + p.t; updateAnswerDisplay(); }; container.appendChild(btn); }); } }
+
+            const allButtons = document.querySelectorAll('.btn');
+            allButtons.forEach(btn => btn.addEventListener('click', () => playSound('touch')));
+            document.getElementById('start-game-btn').addEventListener('click', () => { initAudio(); toggleBgm(); updateLevelSelectScreen(); showScreen('levelSelect'); });
+
+            achievementsBtn.addEventListener('click', () => { initAudio(); renderAchievements(); showScreen('achievements'); });
+            backToStartBtn.addEventListener('click', () => showScreen('start'));
+
+            reviewBtn.addEventListener('click', () => { populateReviewScreen(); showScreen('levelReview'); });
+            document.getElementById('back-to-map-btn').addEventListener('click', () => showScreen('levelSelect'));
+            document.getElementById('retry-level-btn').addEventListener('click', () => startGame(currentLevelIndex));
+            document.getElementById('next-level-btn').addEventListener('click', () => { if (currentLevelIndex + 1 < gameLevels.length) startGame(currentLevelIndex + 1); });
+
+            hintBtn.addEventListener('click', () => {
+                if (hintsLeft > 0) {
+                    hintsLeft--;
+                    hintBtn.textContent = '💡 提示用盡';
+                    hintBtn.disabled = true;
+                    // Provide hint: First character of the true bopomofo answer
+                    const trueAns = parseBopomofo(currentQuestions[currentQuestionIndex].bopomofo);
+                    let p = parseBopomofo(userAnswer);
+                    p.c = trueAns.c; // Force the initial consonant or part
+                    userAnswer = p.c + p.m + p.f + p.t;
+                    updateAnswerDisplay();
+                }
+            });
+
+            document.getElementById('check-btn').addEventListener('click', () => checkAnswer(false));
+            document.getElementById('clear-btn').addEventListener('click', () => { userAnswer = ''; updateAnswerDisplay(); });
+            document.getElementById('quit-level-btn').addEventListener('click', () => { clearInterval(countdownInterval); currentCombo = 0; if (confirm('確定要放棄這一關嗎？進度將不會儲存喔！')) { showScreen('levelSelect'); } else { startTimer(); } });
+            resetButton.addEventListener('click', () => { if (confirm('確定要清除所有遊戲進度和成績嗎？\n(同時會清除成就榜徽章喔！)')) { gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; saveGameState(); updateLevelSelectScreen(); renderAchievements(); } });
+            muteBtn.addEventListener('click', () => { isMuted = !isMuted; muteBtn.textContent = isMuted ? '🔇' : '🔊'; toggleBgm(); });
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch((err) => {
+                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            loadGameState();
+            createKeyboard();
+        });
+    </script>
+</body>
+
+</html>
