@@ -23,7 +23,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
 
         :root {
-            /* v2.7.1 Claymorphism 主色彩盤 (導航修復版) */
+            /* v2.7.2 Claymorphism 主色彩盤 (導航全面修復版) */
             --primary-color: #4F46E5;
             /* 活力靛藍 */
             --primary-color-hover: #4338CA;
@@ -1472,6 +1472,7 @@
             <button id="fullscreen-btn" class="btn icon-btn" title="全螢幕">⛶</button>
         </div>
         <div id="level-select-screen" class="screen">
+            <button class="parent-btn" id="back-to-home-from-map" style="left: 20px; right: auto;">🏠 返回</button>
             <h2>選擇關卡</h2>
             <div class="map-buttons-row">
                 <button id="endless-mode-btn" class="endless-mode-btn">🔥 無盡挑戰</button>
@@ -2297,6 +2298,9 @@
                 });
             });
             muteBtn.addEventListener('click', () => { isMuted = !isMuted; muteBtn.textContent = isMuted ? '🔇' : '🔊'; toggleBgm(); });
+
+            // Level Select Events
+            document.getElementById('back-to-home-from-map').onclick = () => { playSound('touch'); showScreen('start'); };
 
             // Parent Dashboard Events
             document.getElementById('open-parent-btn').onclick = () => {
