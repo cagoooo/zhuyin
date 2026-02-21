@@ -23,7 +23,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
 
         :root {
-            /* v2.7.0 Claymorphism 主色彩盤 (安全性強化版) */
+            /* v2.7.1 Claymorphism 主色彩盤 (導航修復版) */
             --primary-color: #4F46E5;
             /* 活力靛藍 */
             --primary-color-hover: #4338CA;
@@ -2232,7 +2232,7 @@
             document.getElementById('start-game-btn').addEventListener('click', () => { initAudio(); toggleBgm(); updateLevelSelectScreen(); showScreen('levelSelect'); });
 
             achievementsBtn.onclick = () => { playSound('touch'); renderAchievements(); showScreen('achievements'); };
-            backToStartBtn.onclick = () => { playSound('touch'); showScreen('levelSelect'); };
+            backToStartBtn.onclick = () => { playSound('touch'); showScreen('start'); };
             document.getElementById('endless-mode-btn').onclick = () => { playSound('touch'); startEndlessMode(); };
 
             reviewBtn.addEventListener('click', () => { populateReviewScreen(); showScreen('levelReview'); });
