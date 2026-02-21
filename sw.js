@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bopomofo-v2.7.3';
+const CACHE_NAME = 'bopomofo-v3.0.0';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',

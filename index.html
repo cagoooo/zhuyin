@@ -23,7 +23,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
 
         :root {
-            /* v2.7.3 Claymorphism 主色彩盤 (UI 配置優化版) */
+            /* v3.0.0 Claymorphism 主色彩盤 (AI 智能版) */
             --primary-color: #4F46E5;
             /* 活力靛藍 */
             --primary-color-hover: #4338CA;
@@ -333,6 +333,65 @@
             height: 40px;
             padding: 0;
             line-height: 40px;
+            z-index: 101;
+            /* 確保在最上層 */
+        }
+
+        .voice-btn {
+            background: #FF4D4D;
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 6px #CC0000;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-left: 20px;
+        }
+
+        .voice-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px #CC0000;
+        }
+
+        .voice-btn.recording {
+            animation: pulse-red 1.5s infinite;
+            background: #ff0000;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(255, 77, 77, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 77, 0);
+            }
+        }
+
+        #radar-chart-container {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: var(--clay-shadow-card);
+            text-align: center;
+            width: 100%;
+        }
+
+        #radar-canvas {
+            max-width: 100%;
+            height: auto;
         }
 
         #timer-display {
@@ -1305,13 +1364,23 @@
             top: 20px;
             right: 20px;
             z-index: 100;
-            background: white;
-            padding: 8px 12px;
-            border-radius: 12px;
+            background: #f8fafc;
+            padding: 8px 16px;
+            border-radius: 20px;
             box-shadow: var(--clay-shadow-btn);
             font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
-            border: none;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .parent-btn:hover {
+            background: white;
+            transform: translateY(-2px);
         }
 
         .custom-item-row {
@@ -1503,7 +1572,10 @@
                 </div>
                 <div id="interaction-area">
                     <div id="answer-hint-card"></div>
-                    <button id="speech-btn" class="speech-btn" title="聆聽發音">📢</button>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+                        <button id="speech-btn" class="speech-btn" title="聆聽發音">📢</button>
+                        <button id="voice-btn" class="voice-btn" title="語音辨識">🎤</button>
+                    </div>
                     <div id="char-display"></div>
                     <div id="bopomofo-answer"></div>
                 </div>
@@ -1559,6 +1631,12 @@
                 <button id="upload-cloud-btn" class="btn" style="background-color: #F97316;">☁️ 上架雲端</button>
                 <button id="view-market-btn" class="btn" style="background-color: #818CF8;">🛒 瀏覽市集</button>
                 <button id="close-parent-btn" class="btn">返回遊戲</button>
+            </div>
+
+            <h4 style="margin-top:25px;">📉 學習成長分析</h4>
+            <div id="radar-chart-container">
+                <canvas id="radar-canvas" width="300" height="300"></canvas>
+                <p id="radar-empty-msg" style="color:#64748b; font-size:14px; display:none;">還沒有足夠的練習數據喔！</p>
             </div>
         </div>
 
@@ -1635,22 +1713,25 @@
     <script type="module">
         import { firebaseConfig } from './firebase-config.js';
 
-        // 初始化 Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+        // 初始化 Firebase (僅在有 API Key 時執行)
+        if (firebaseConfig && firebaseConfig.apiKey) {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            const auth = firebase.auth();
 
-        // 匿名登入 (確保能讀寫 Firestore)
-        auth.signInAnonymously().catch((error) => {
-            console.error("Firebase 登入失敗:", error);
-            if (error.code === 'auth/configuration-not-found') {
-                alert("⚠️ Firebase 驗證配置錯誤：請確認在 Firebase Console 已啟用「匿名登入 (Anonymous Auth)」服務。");
-            }
-        });
+            // 匿名登入 (確保能讀寫 Firestore)
+            auth.signInAnonymously().catch((error) => {
+                console.error("Firebase 登入失敗:", error);
+            });
 
-        // 暴露給全域以利舊有腳本調用
-        window.fbDB = db;
-        window.fbAuth = auth;
+            // 暴露給全域以利舊有腳本調用
+            window.fbDB = db;
+            window.fbAuth = auth;
+        } else {
+            console.warn("⚠️ 本地環境未偵測到 Firebase API Key，已進入離線模式。雲端功能將無法使用，但語音與雷達圖功能正常。");
+            window.fbDB = null;
+            window.fbAuth = null;
+        }
     </script>
 
     <script>
@@ -1674,7 +1755,9 @@
             const screens = { start: document.getElementById('start-screen'), levelSelect: document.getElementById('level-select-screen'), game: document.getElementById('game-screen'), levelEnd: document.getElementById('level-end-screen'), levelReview: document.getElementById('level-review-screen'), achievements: document.getElementById('achievements-screen'), parentDashboard: document.getElementById('parent-dashboard') };
             const interactionArea = document.getElementById('interaction-area'); const livesDisplay = document.getElementById('lives-display'); const progressBarInner = document.getElementById('progress-bar-inner'); const questionImage = document.getElementById('question-image'); const questionImageFallback = document.getElementById('question-image-fallback'); const charDisplay = document.getElementById('char-display'); const bopomofoAnswer = document.getElementById('bopomofo-answer'); const feedbackMessage = document.getElementById('feedback-message'); const answerHintCard = document.getElementById('answer-hint-card'); const levelSelectContainer = document.getElementById('level-buttons-container'); const resetButton = document.getElementById('reset-progress-btn'); const reviewBtn = document.getElementById('review-btn'); const reviewContainer = document.getElementById('review-items-container'); const muteBtn = document.getElementById('mute-btn'); const fullscreenBtn = document.getElementById('fullscreen-btn'); const timerDisplay = document.getElementById('timer-display'); const timeLeftSpan = document.getElementById('time-left');
             const comboDisplay = document.getElementById('combo-display'); const speechBtn = document.getElementById('speech-btn'); const hintBtn = document.getElementById('hint-btn'); const achievementsBtn = document.getElementById('achievements-btn'); const backToStartBtn = document.getElementById('back-to-start-btn'); const achievementsContainer = document.getElementById('achievements-container');
-            let gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; let currentLevelIndex = 0, lives = 3, currentQuestions = [], currentQuestionIndex = 0, correctAnswersInLevel = 0, userAnswer = '', isChecking = false, activeScreen = 'start', levelResults = [], isMuted = false;
+            let gameState = { unlockedLevels: 1, hearts: {}, achievements: [] };
+            let bopomofoStats = JSON.parse(localStorage.getItem('bopomofoStats') || '{}');
+            let currentLevelIndex = 0, lives = 3, currentQuestions = [], currentQuestionIndex = 0, correctAnswersInLevel = 0, userAnswer = '', isChecking = false, activeScreen = 'start', levelResults = [], isMuted = false;
             let audioContext, bgmInterval, countdownInterval, timeRemaining;
             let confirmCallback = null;
 
@@ -2009,9 +2092,11 @@
                     }
 
                     setTimeout(() => { interactionArea.classList.remove('correct'); currentQuestionIndex++; loadQuestion(); }, 2000);
+                    updateStats(currentQuestions[currentQuestionIndex].bopomofo, true);
                 } else {
                     currentCombo = 0; comboDisplay.classList.remove('active'); // Reset Combo
                     playSound('wrong'); lives--; updateLivesDisplay();
+                    updateStats(currentQuestions[currentQuestionIndex].bopomofo, false);
                     if (navigator.vibrate) navigator.vibrate([200, 100, 200]); // 震動回饋
 
                     // 展示正確答案小卡
@@ -2356,6 +2441,152 @@
                     document.exitFullscreen();
                 }
             });
+
+            // --- AI 語音辨識與分析邏輯 (v3.0) ---
+            function updateStats(bopomofo, isCorrect) {
+                const parts = parseBopomofo(bopomofo);
+                const keys = [];
+                if (parts.c) keys.push(parts.c);
+                if (parts.m) keys.push(parts.m);
+                if (parts.f) keys.push(parts.f);
+                if (parts.t) keys.push(parts.t || 'ˉ'); // 預設一聲
+
+                keys.forEach(key => {
+                    if (!bopomofoStats[key]) bopomofoStats[key] = { correct: 0, total: 0 };
+                    bopomofoStats[key].total++;
+                    if (isCorrect) bopomofoStats[key].correct++;
+                });
+                localStorage.setItem('bopomofoStats', JSON.stringify(bopomofoStats));
+            }
+
+            function drawRadarChart() {
+                const canvas = document.getElementById('radar-canvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const radius = canvas.width * 0.35;
+
+                const categories = [
+                    { name: "聲母", keys: bopomofoParts.consonants },
+                    { name: "介母", keys: bopomofoParts.medials },
+                    { name: "韻母", keys: bopomofoParts.finals },
+                    { name: "聲調", keys: bopomofoParts.tones }
+                ];
+
+                const scores = categories.map(cat => {
+                    let correct = 0, total = 0;
+                    cat.keys.forEach(k => {
+                        const stats = bopomofoStats[k] || (k === 'ˉ' ? bopomofoStats['ˉ'] : null);
+                        if (stats) {
+                            correct += stats.correct;
+                            total += stats.total;
+                        }
+                    });
+                    return total === 0 ? 0 : (correct / total);
+                });
+
+                if (scores.every(s => s === 0)) {
+                    document.getElementById('radar-empty-msg').style.display = 'block';
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    return;
+                } else {
+                    document.getElementById('radar-empty-msg').style.display = 'none';
+                }
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let level = 1; level <= 5; level++) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#e2e8f0';
+                    const r = (radius / 5) * level;
+                    for (let i = 0; i < categories.length; i++) {
+                        const angle = (i * 2 * Math.PI) / categories.length - Math.PI / 2;
+                        const x = centerX + r * Math.cos(angle);
+                        const y = centerY + r * Math.sin(angle);
+                        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+
+                ctx.textAlign = 'center';
+                ctx.font = '700 16px sans-serif';
+                ctx.fillStyle = '#1e293b';
+                categories.forEach((cat, i) => {
+                    const angle = (i * 2 * Math.PI) / categories.length - Math.PI / 2;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    ctx.strokeStyle = '#cbd5e1';
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+
+                    const labelX = centerX + (radius + 25) * Math.cos(angle);
+                    const labelY = centerY + (radius + 25) * Math.sin(angle);
+                    ctx.fillText(cat.name, labelX, labelY);
+                });
+
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(79, 70, 229, 0.4)';
+                ctx.strokeStyle = '#4F46E5';
+                ctx.lineWidth = 3;
+                scores.forEach((score, i) => {
+                    const angle = (i * 2 * Math.PI) / categories.length - Math.PI / 2;
+                    const r = radius * Math.max(0.1, score); // 最小顯示 0.1
+                    const x = centerX + r * Math.cos(angle);
+                    const y = centerY + r * Math.sin(angle);
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            const voiceBtn = document.getElementById('voice-btn');
+            let recognition;
+            if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'zh-TW';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+
+                recognition.onstart = () => {
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.textContent = '🛑';
+                };
+
+                recognition.onend = () => {
+                    voiceBtn.classList.remove('recording');
+                    voiceBtn.textContent = '🎤';
+                };
+
+                recognition.onresult = (event) => {
+                    const result = event.results[0][0].transcript;
+                    const targetChar = currentQuestions[currentQuestionIndex].char;
+                    if (result.includes(targetChar)) {
+                        userAnswer = currentQuestions[currentQuestionIndex].bopomofo;
+                        updateAnswerDisplay();
+                        setTimeout(() => checkAnswer(false), 500);
+                    } else {
+                        feedbackMessage.textContent = `聽起來像是「${result}」，再試一次！`;
+                        feedbackMessage.className = 'feedback-wrong';
+                    }
+                };
+            }
+
+            voiceBtn.onclick = () => {
+                if (!recognition) return alert('很抱歉，您的瀏覽器不支援語音辨識服務。建議使用 Chrome 瀏覽器。');
+                playSound('touch');
+                try { recognition.start(); } catch (e) { recognition.stop(); }
+            };
+
+            const originalOpenParent = document.getElementById('open-parent-btn').onclick;
+            document.getElementById('open-parent-btn').onclick = () => {
+                originalOpenParent();
+                setTimeout(drawRadarChart, 100);
+            };
 
             loadGameState();
             createKeyboard();
