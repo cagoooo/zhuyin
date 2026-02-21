@@ -170,18 +170,19 @@
             width: 100%;
             aspect-ratio: 1 / 1;
             height: auto;
-            font-size: 24px;
+            font-size: clamp(12px, 3.5vw, 18px);
             font-family: 'Baloo 2', sans-serif;
             font-weight: 700;
             border-radius: var(--border-radius-btn);
             position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-evenly;
             align-items: center;
-            padding: 10px;
+            padding: 6px 4px;
             line-height: 1.2;
             border: 2px solid rgba(255, 255, 255, 0.5);
+            overflow: hidden;
         }
 
         .level-btn:not(.locked):nth-child(5n+1) {
@@ -217,16 +218,13 @@
         }
 
         .level-btn .hearts {
-            font-size: 18px;
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
+            font-size: clamp(10px, 2.5vw, 16px);
+            line-height: 1;
         }
 
         .level-icon {
-            font-size: 36px;
-            margin-bottom: 5px;
+            font-size: clamp(22px, 6vw, 36px);
+            margin-bottom: 2px;
             filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.1));
         }
 
@@ -494,31 +492,63 @@
         }
 
         .control-btn {
-            font-size: clamp(16px, 4vw, 22px);
-            padding: 8px 18px;
-            min-height: 44px;
+            font-size: clamp(15px, 3.8vw, 20px);
+            font-weight: 800;
+            padding: 10px 16px;
+            min-height: 48px;
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.5px;
         }
 
         .hint-btn {
-            background-color: #FCD34D;
-            color: #78350F;
+            background-color: #FBBF24 !important;
+            color: #451A03 !important;
+            text-shadow: none !important;
+            box-shadow: 0 5px 0 #92400E, var(--clay-shadow-btn);
+        }
+
+        .hint-btn:hover {
+            background-color: #F59E0B;
+        }
+
+        .hint-btn:active {
+            box-shadow: 0 2px 0 #92400E;
+            transform: translateY(3px);
         }
 
         .clear-btn {
-            background-color: #9CA3AF;
-            color: white;
+            background-color: #F1F5F9 !important;
+            color: #1E293B !important;
+            text-shadow: none !important;
+            box-shadow: 0 5px 0 #94A3B8, var(--clay-shadow-btn);
+        }
+
+        .clear-btn:hover {
+            background-color: #E2E8F0;
+        }
+
+        .clear-btn:active {
+            box-shadow: 0 2px 0 #94A3B8;
+            transform: translateY(3px);
         }
 
         .check-btn {
-            background-color: var(--success-color);
-            color: white;
-            font-size: clamp(18px, 4.5vw, 24px);
-            padding: 8px 25px;
-            animation: pulse-glow 2s infinite;
+            background-color: #22C55E !important;
+            color: white !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+            font-size: clamp(16px, 4vw, 22px);
+            font-weight: 800;
+            padding: 10px 22px;
+            box-shadow: 0 5px 0 #15803D, var(--clay-shadow-btn);
         }
 
         .check-btn:hover {
             background-color: #16A34A;
+        }
+
+        .check-btn:active {
+            box-shadow: 0 2px 0 #15803D;
+            transform: translateY(3px);
         }
 
         .bopomofo-btn:hover {
@@ -587,11 +617,45 @@
         }
 
         .confetti {
-            position: absolute;
-            width: 8px;
-            height: 15px;
+            position: fixed;
+            width: 10px;
+            height: 10px;
             opacity: 1;
-            animation: fall 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 9999;
+            animation: fall 1.8s ease-out forwards;
+        }
+
+        .confetti-round {
+            border-radius: 50%;
+        }
+
+        .confetti-star {
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+
+        .confetti-heart {
+            clip-path: path('M5,2 A3,3,0,0,1,10,2 A3,3,0,0,1,10,7 L5,12 L0,7 A3,3,0,0,1,0,2 A3,3,0,0,1,5,2Z');
+        }
+
+        .confetti-square {
+            border-radius: 2px;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+
+            60% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(120vh) rotate(720deg) scale(0.5);
+                opacity: 0;
+            }
         }
 
         #achievements-screen {
@@ -1006,12 +1070,12 @@
     <script>
         // --- 【核心升級】擴充題庫 ---
         const gameLevels = [
-            { name: "水果", icon: "🍎", questions: [{ char: '蘋', bopomofo: 'ㄆㄧㄥˊ', image: './assets/images/apple.png' }, { char: '蕉', bopomofo: 'ㄐㄧㄠ', image: './assets/images/banana.png' }, { char: '瓜', bopomofo: 'ㄍㄨㄚ', image: './assets/images/watermelon.png' }, { char: '莓', bopomofo: 'ㄇㄟˊ', image: './assets/images/strawberry.png' }, { char: '桃', bopomofo: 'ㄊㄠˊ', image: './assets/images/peach.png' }, { char: '萄', bopomofo: 'ㄊㄠˊ', image: './assets/images/grapes.png' }, { char: '橘', bopomofo: 'ㄐㄩˊ', image: './assets/images/mandarin.png' }, { char: '梨', bopomofo: 'ㄌㄧˊ', image: './assets/images/pear.png' }, { char: '檬', bopomofo: 'ㄇㄥˊ', image: './assets/images/lemon.png' }] },
+            { name: "水果", icon: "🍎", questions: [{ char: '蘋', bopomofo: 'ㄆㄧㄥˊ', image: './assets/images/apple.png' }, { char: '蕉', bopomofo: 'ㄐㄧㄠ', image: './assets/images/banana.png' }, { char: '瓜', bopomofo: 'ㄍㄨㄚ', image: './assets/images/watermelon.png' }, { char: '莓', bopomofo: 'ㄇㄟˊ', image: './assets/images/strawberry.png' }, { char: '桃', bopomofo: 'ㄊㄠˊ', image: './assets/images/peach.png' }, { char: '萄', bopomofo: 'ㄊㄠˊ', image: './assets/images/grapes.png' }, { char: '橘', bopomofo: 'ㄐㄩˊ', image: 'https://img.icons8.com/color/200/tangerine.png' }, { char: '梨', bopomofo: 'ㄌㄧˊ', image: './assets/images/pear.png' }, { char: '檬', bopomofo: 'ㄇㄥˊ', image: 'https://img.icons8.com/color/200/lemon.png' }] },
             { name: "動物", icon: "🐶", questions: [{ char: '貓', bopomofo: 'ㄇㄠ', image: './assets/images/cat.png' }, { char: '狗', bopomofo: 'ㄍㄡˇ', image: './assets/images/dog.png' }, { char: '兔', bopomofo: 'ㄊㄨˋ', image: './assets/images/rabbit.png' }, { char: '魚', bopomofo: 'ㄩˊ', image: './assets/images/fish.png' }, { char: '熊', bopomofo: 'ㄒㄩㄥˊ', image: './assets/images/teddy-bear.png' }, { char: '虎', bopomofo: 'ㄏㄨˇ', image: 'https://img.icons8.com/color/200/tiger.png' }, { char: '獅', bopomofo: 'ㄕ', image: './assets/images/lion.png' }, { char: '象', bopomofo: 'ㄒㄧㄤˋ', image: './assets/images/elephant.png' }, { char: '猴', bopomofo: 'ㄏㄡˊ', image: 'https://img.icons8.com/color/200/monkey.png' }, { char: '鳥', bopomofo: 'ㄋㄧㄠˇ', image: './assets/images/bird.png' }] },
             { name: "交通", icon: "🚗", questions: [{ char: '車', bopomofo: 'ㄔㄜ', image: './assets/images/car.png' }, { char: '船', bopomofo: 'ㄔㄨㄢˊ', image: 'https://img.icons8.com/color/200/boat.png' }, { char: '機', bopomofo: 'ㄐㄧ', image: './assets/images/airplane.png' }, { char: '火', bopomofo: 'ㄏㄨㄛˇ', image: './assets/images/train.png' }, { char: '單', bopomofo: 'ㄉㄢ', image: './assets/images/bicycle.png' }, { char: '公', bopomofo: 'ㄍㄨㄥ', image: './assets/images/bus.png' }, { char: '卡', bopomofo: 'ㄎㄚˇ', image: './assets/images/truck.png' }] },
             { name: "身體", icon: "✋", questions: [{ char: '頭', bopomofo: 'ㄊㄡˊ', image: './assets/images/head.png' }, { char: '手', bopomofo: 'ㄕㄡˇ', image: './assets/images/hand.png' }, { char: '脚', bopomofo: 'ㄐㄧㄠˇ', image: 'https://img.icons8.com/color/200/footprint.png' }, { char: '眼', bopomofo: 'ㄧㄢˇ', image: './assets/images/visible.png' }, { char: '口', bopomofo: 'ㄎㄡˇ', image: './assets/images/mouth.png' }, { char: '鼻', bopomofo: 'ㄅㄧˊ', image: 'https://img.icons8.com/color/200/nose.png' }, { char: '耳', bopomofo: 'ㄦˇ', image: 'https://img.icons8.com/color/200/ear.png' }] },
-            { name: "家人", icon: "👨‍👩‍👧‍👦", questions: [{ char: '爸', bopomofo: 'ㄅㄚˋ', image: './assets/images/father.png' }, { char: '媽', bopomofo: 'ㄇㄚ', image: './assets/images/mother.png' }, { char: '哥', bopomofo: 'ㄍㄜ', image: './assets/images/boy.png' }, { char: '姐', bopomofo: 'ㄐㄧㄝˇ', image: './assets/images/girl.png' }, { char: '弟', bopomofo: 'ㄉㄧˋ', image: './assets/images/baby-boy.png' }, { char: '妹', bopomofo: 'ㄇㄟˋ', image: './assets/images/baby-girl.png' }, { char: '爺', bopomofo: 'ㄧㄝˊ', image: './assets/images/grandfather.png' }] },
-            { name: "學校", icon: "🏫", questions: [{ char: '書', bopomofo: 'ㄕㄨ', image: './assets/images/book.png' }, { char: '筆', bopomofo: 'ㄅㄧˇ', image: './assets/images/pen.png' }, { char: '尺', bopomofo: 'ㄔˇ', image: './assets/images/ruler.png' }, { char: '桌', bopomofo: 'ㄓㄨㄛ', image: './assets/images/desk.png' }, { char: '椅', bopomofo: 'ㄧˇ', image: './assets/images/chair.png' }, { char: '燈', bopomofo: 'ㄉㄥ', image: 'https://img.icons8.com/color/200/table-lamp.png' }, { char: '門', bopomofo: 'ㄇㄣˊ', image: './assets/images/door.png' }] },
+            { name: "家人", icon: "👨‍👩‍👧‍👦", questions: [{ char: '爸', bopomofo: 'ㄅㄚˋ', image: './assets/images/father.png' }, { char: '媽', bopomofo: 'ㄇㄚ', image: './assets/images/mother.png' }, { char: '哥', bopomofo: 'ㄍㄜ', image: './assets/images/boy.png' }, { char: '姐', bopomofo: 'ㄐㄧㄝˇ', image: './assets/images/girl.png' }, { char: '弟', bopomofo: 'ㄉㄧˋ', image: 'https://img.icons8.com/color/200/baby-boy.png' }, { char: '妹', bopomofo: 'ㄇㄟˋ', image: 'https://img.icons8.com/color/200/baby-girl.png' }, { char: '爺', bopomofo: 'ㄧㄝˊ', image: 'https://img.icons8.com/color/200/old-man.png' }] },
+            { name: "學校", icon: "🏫", questions: [{ char: '書', bopomofo: 'ㄕㄨ', image: './assets/images/book.png' }, { char: '筆', bopomofo: 'ㄅㄧˇ', image: './assets/images/pen.png' }, { char: '尺', bopomofo: 'ㄔˇ', image: './assets/images/ruler.png' }, { char: '桌', bopomofo: 'ㄓㄨㄛ', image: 'https://img.icons8.com/color/200/school-desk.png' }, { char: '椅', bopomofo: 'ㄧˇ', image: 'https://img.icons8.com/color/200/chair.png' }, { char: '燈', bopomofo: 'ㄉㄥ', image: 'https://img.icons8.com/color/200/table-lamp.png' }, { char: '門', bopomofo: 'ㄇㄣˊ', image: './assets/images/door.png' }] },
             { name: "顏色", icon: "🎨", questions: [{ char: '紅', bopomofo: 'ㄏㄨㄥˊ', image: './assets/images/red.png' }, { char: '黃', bopomofo: 'ㄏㄨㄤˊ', image: './assets/images/yellow.png' }, { char: '藍', bopomofo: 'ㄌㄢˊ', image: './assets/images/blue.png' }, { char: '綠', bopomofo: 'ㄌㄩˋ', image: './assets/images/green.png' }, { char: '白', bopomofo: 'ㄅㄞˊ', image: './assets/images/white.png' }, { char: '黑', bopomofo: 'ㄏㄟ', image: './assets/images/black.png' }] },
             { name: "天氣", icon: "⛅", questions: [{ char: '晴', bopomofo: 'ㄑㄧㄥˊ', image: './assets/images/sunny.png' }, { char: '雨', bopomofo: 'ㄩˇ', image: './assets/images/rain.png' }, { char: '雲', bopomofo: 'ㄩㄣˊ', image: 'https://img.icons8.com/color/200/clouds.png' }, { char: '雪', bopomofo: 'ㄒㄩㄝˇ', image: './assets/images/snow.png' }, { char: '風', bopomofo: 'ㄈㄥ', image: './assets/images/wind.png' }, { char: '雷', bopomofo: 'ㄌㄟˊ', image: './assets/images/storm.png' }, { char: '虹', bopomofo: 'ㄏㄨㄥˊ', image: './assets/images/rainbow.png' }] },
             { name: "形狀", icon: "🔺", questions: [{ char: '圓', bopomofo: 'ㄩㄢˊ', image: 'https://img.icons8.com/color/200/filled-circle.png' }, { char: '方', bopomofo: 'ㄈㄤ', image: './assets/images/square.png' }, { char: '角', bopomofo: 'ㄐㄧㄠˇ', image: './assets/images/triangle.png' }, { char: '星', bopomofo: 'ㄒㄧㄥ', image: './assets/images/star.png' }, { char: '心', bopomofo: 'ㄒㄧㄣ', image: './assets/images/heart.png' }] },
@@ -1068,7 +1132,27 @@
             function playSound(type) { if (type === 'correct') playNote(600, 'sine', 0.5); else if (type === 'wrong') playNote(150, 'square', 0.2); else if (type === 'touch') playNote(440, 'triangle', 0.1); }
             function toggleBgm() { if (isMuted || !audioContext) { clearInterval(bgmInterval); bgmInterval = null; return; } if (bgmInterval) return; const notes = [261, 293, 329, 349]; let noteIndex = 0; bgmInterval = setInterval(() => { playNote(notes[noteIndex % notes.length], 'sine', 0.3); noteIndex++; }, 500); }
             function showScreen(screenId) { screens[activeScreen].classList.remove('active'); activeScreen = screenId; screens[activeScreen].classList.add('active'); }
-            function triggerConfetti() { for (let i = 0; i < 30; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = `${Math.random() * 100}%`; c.style.top = `${-20 - Math.random() * 20}px`; c.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; c.style.animationDelay = `${Math.random() * 0.5}s`; interactionArea.appendChild(c); setTimeout(() => c.remove(), 2000); } }
+            function triggerConfetti() {
+                const shapes = ['confetti-round', 'confetti-star', 'confetti-heart', 'confetti-square'];
+                const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FF922B', '#CC5DE8', '#F06595', '#20C997'];
+                const count = 60;
+                for (let i = 0; i < count; i++) {
+                    const c = document.createElement('div');
+                    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const size = 8 + Math.random() * 12;
+                    c.className = `confetti ${shape}`;
+                    c.style.left = `${Math.random() * 100}vw`;
+                    c.style.top = `${-30 - Math.random() * 30}px`;
+                    c.style.width = `${size}px`;
+                    c.style.height = `${size}px`;
+                    c.style.backgroundColor = color;
+                    c.style.animationDuration = `${1.2 + Math.random() * 1.2}s`;
+                    c.style.animationDelay = `${Math.random() * 0.6}s`;
+                    document.body.appendChild(c);
+                    setTimeout(() => c.remove(), 3000);
+                }
+            }
 
             function checkAnswer(timeoutObj = false) {
                 if (isChecking) return; isChecking = true;
