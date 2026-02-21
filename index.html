@@ -15,11 +15,15 @@
     <link rel="apple-touch-icon"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%234F46E5'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='300' fill='white' text-anchor='middle' dy='.3em'%3E🎲%3C/text%3E%3C/svg%3E">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
 
         :root {
-            /* v2.0 Claymorphism 主色彩盤 (UI UX Pro Max 推薦) */
+            /* v2.7.0 Claymorphism 主色彩盤 (安全性強化版) */
             --primary-color: #4F46E5;
             /* 活力靛藍 */
             --primary-color-hover: #4338CA;
@@ -45,6 +49,12 @@
             /* 圓角尺寸設定 */
             --border-radius-btn: 20px;
             --border-radius-card: 32px;
+
+            /* 新增 Claymorphism 核心變數 (v3.0) */
+            --clay-bg: #FFFFFF;
+            --clay-inner-top: inset 2px 2px 5px rgba(255, 255, 255, 0.8);
+            --clay-inner-bottom: inset -5px -5px 10px rgba(166, 180, 246, 0.4);
+            --clay-outer-soft: 10px 10px 20px rgba(166, 180, 246, 0.3);
         }
 
         * {
@@ -1094,6 +1104,84 @@
             transform: translateX(-50%);
         }
 
+        /* --- v3.0 Claymorphism 專屬類別 --- */
+        .clay-card {
+            background: var(--clay-bg);
+            border-radius: var(--border-radius-card);
+            box-shadow: var(--clay-outer-soft), var(--clay-inner-top), var(--clay-inner-bottom);
+            padding: 25px;
+            border: 4px solid #fff;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .clay-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .qr-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(238, 242, 255, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .qr-overlay h3 {
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        .lobby-player-item {
+            background: #fff;
+            border-radius: 15px;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--clay-shadow-btn);
+            border: 2px solid var(--secondary-color);
+            font-weight: 700;
+            animation: slide-in 0.3s ease-out forwards;
+        }
+
+        @keyframes slide-in {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .room-code-badge {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 28px;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.4);
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+
         .phonetic-block-horizontal {
             display: flex;
             align-items: flex-start;
@@ -1303,6 +1391,71 @@
             background: rgba(255, 255, 255, 0.5);
             border-radius: 16px;
         }
+
+        /* --- Custom Confirm Modal --- */
+        #confirm-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .confirm-modal-card {
+            background: var(--clay-bg);
+            border-radius: 30px;
+            box-shadow: var(--clay-outer-soft), var(--clay-inner-top);
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border: 4px solid #fff;
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirm-modal-title {
+            font-size: 24px;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .confirm-modal-text {
+            color: #475569;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .confirm-modal-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .confirm-modal-btns .btn {
+            flex: 1;
+            margin: 0;
+            padding: 12px;
+        }
     </style>
 </head>
 
@@ -1315,6 +1468,7 @@
             <p>準備好開始學習了嗎？</p><button id="start-game-btn" class="btn">開始冒險</button>
             <button id="achievements-btn" class="btn" style="background-color: #fca311; box-shadow: 0 4px #d08c00;">🏆
                 榮耀榜</button>
+            <button id="open-multiplayer-btn" class="btn" style="background-color: #4CAF50;">🏫 多人連線</button>
             <button id="fullscreen-btn" class="btn icon-btn" title="全螢幕">⛶</button>
         </div>
         <div id="level-select-screen" class="screen">
@@ -1399,8 +1553,10 @@
 
             <div id="custom-pool-list"></div>
 
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button id="share-qr-btn" class="btn" style="background-color: #4D96FF;">📱 生成分享 QR</button>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                <button id="share-qr-btn" class="btn" style="background-color: #4D96FF;">📱 生成 QR</button>
+                <button id="upload-cloud-btn" class="btn" style="background-color: #F97316;">☁️ 上架雲端</button>
+                <button id="view-market-btn" class="btn" style="background-color: #818CF8;">🛒 瀏覽市集</button>
                 <button id="close-parent-btn" class="btn">返回遊戲</button>
             </div>
         </div>
@@ -1412,7 +1568,89 @@
             <p>請用另一台裝置掃描此碼</p>
             <button id="close-qr-btn" class="btn">關閉</button>
         </div>
+
+        <!-- 雲端市集遮罩 (v3.0) -->
+        <div id="cloud-market-overlay" class="qr-overlay" style="display: none;">
+            <h3>🌩️ 雲端題庫市集</h3>
+            <div class="clay-card" style="width: 100%; max-width: 500px; padding: 15px;">
+                <div id="market-list"
+                    style="max-height: 500px; overflow-y: auto; width: 100%; padding: 10px; background: #f8fafc; border-radius: 20px;">
+                    <p style="text-align: center; color: #64748b;">正在連線至雲端...</p>
+                </div>
+            </div>
+            <button id="close-market-btn" class="btn" style="margin-top: 25px; background: #64748b;">關閉市集</button>
+        </div>
+
+        <!-- 多人競賽開房/加入遮罩 (v3.0) -->
+        <div id="multiplayer-overlay" class="qr-overlay" style="display: none;">
+            <h3>🏫 多人競賽</h3>
+            <div id="multiplayer-setup" style="width: 100%; max-width: 400px;">
+                <div class="clay-card" style="margin-bottom: 25px; border-top: 8px solid var(--accent-color);">
+                    <h4 style="margin-top:0; color:var(--accent-color);">教師開房</h4>
+                    <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">建立房間後，讓學生輸入房間碼或掃碼加入。</p>
+                    <button id="create-room-btn" class="btn"
+                        style="background: var(--accent-color); width: 100%; margin:0;">✨ 開創房間</button>
+                </div>
+                <div class="clay-card" style="border-top: 8px solid var(--primary-color);">
+                    <h4 style="margin-top:0; color:var(--primary-color);">學生加入</h4>
+                    <input type="text" id="room-id-input" placeholder="房間碼 (6位數)" maxlength="6"
+                        style="width: 100%; padding: 15px; border-radius: 15px; border: 3px solid var(--secondary-color); margin-bottom: 15px; font-size: 20px; text-align: center; background: #f8fafc;">
+                    <button id="join-room-btn" class="btn" style="width: 100%; margin:0;">🚀 進入競賽</button>
+                </div>
+            </div>
+            <div id="lobby-view" style="display: none; width: 100%; max-width: 400px;">
+                <div class="clay-card">
+                    <h4 style="margin-top:0;">大廳待命中心</h4>
+                    <div style="text-align:center;">
+                        <span class="room-code-badge" id="display-room-id">------</span>
+                        <p style="color: #64748b; font-size: 14px;">請邀請大家使用此房間碼加入</p>
+                    </div>
+                    <div style="background: #f1f5f9; border-radius: 20px; padding: 15px; margin: 15px 0;">
+                        <p style="text-align: left; font-weight: 700; margin-top: 0;">已加入成員：</p>
+                        <div id="player-list" style="max-height: 250px; overflow-y: auto; padding-right: 5px;"></div>
+                    </div>
+                    <button id="start-multiplayer-game-btn" class="btn"
+                        style="display: none; background: var(--accent-color); width: 100%; margin: 10px 0 0 0;">🏁
+                        全員出發！</button>
+                </div>
+            </div>
+            <button id="close-multiplayer-btn" class="btn"
+                style="margin-top: 30px; background: #64748b; font-size: 16px; padding: 8px 20px;">返回首頁</button>
+        </div>
+
+        <!-- 自定義確認 Modal (v3.0.1) -->
+        <div id="confirm-modal-overlay">
+            <div class="confirm-modal-card">
+                <div class="confirm-modal-title" id="confirm-title">❓ 確定嗎？</div>
+                <div class="confirm-modal-text" id="confirm-text">確定要執行此操作嗎？</div>
+                <div class="confirm-modal-btns">
+                    <button class="btn" id="confirm-cancel" style="background: #94a3b8;">取消</button>
+                    <button class="btn" id="confirm-ok" style="background: var(--accent-color);">確定</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script type="module">
+        import { firebaseConfig } from './firebase-config.js';
+
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // 匿名登入 (確保能讀寫 Firestore)
+        auth.signInAnonymously().catch((error) => {
+            console.error("Firebase 登入失敗:", error);
+            if (error.code === 'auth/configuration-not-found') {
+                alert("⚠️ Firebase 驗證配置錯誤：請確認在 Firebase Console 已啟用「匿名登入 (Anonymous Auth)」服務。");
+            }
+        });
+
+        // 暴露給全域以利舊有腳本調用
+        window.fbDB = db;
+        window.fbAuth = auth;
+    </script>
 
     <script>
         // --- 【核心升級】擴充題庫 ---
@@ -1437,6 +1675,24 @@
             const comboDisplay = document.getElementById('combo-display'); const speechBtn = document.getElementById('speech-btn'); const hintBtn = document.getElementById('hint-btn'); const achievementsBtn = document.getElementById('achievements-btn'); const backToStartBtn = document.getElementById('back-to-start-btn'); const achievementsContainer = document.getElementById('achievements-container');
             let gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; let currentLevelIndex = 0, lives = 3, currentQuestions = [], currentQuestionIndex = 0, correctAnswersInLevel = 0, userAnswer = '', isChecking = false, activeScreen = 'start', levelResults = [], isMuted = false;
             let audioContext, bgmInterval, countdownInterval, timeRemaining;
+            let confirmCallback = null;
+
+            function showConfirm(title, text, callback) {
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-text').textContent = text;
+                document.getElementById('confirm-modal-overlay').style.display = 'flex';
+                confirmCallback = callback;
+            }
+
+            document.getElementById('confirm-ok').onclick = () => {
+                document.getElementById('confirm-modal-overlay').style.display = 'none';
+                if (confirmCallback) confirmCallback();
+            };
+
+            document.getElementById('confirm-cancel').onclick = () => {
+                document.getElementById('confirm-modal-overlay').style.display = 'none';
+                if (activeScreen === 'game') startTimer();
+            };
             let currentCombo = 0, hintsLeft = 1;
             let currentScore = 0, isEndlessMode = false;
             let customPool = JSON.parse(localStorage.getItem('bopomofoCustomPool') || '[]');
@@ -1467,11 +1723,11 @@
             }
 
             window.removeCustomItem = (index) => {
-                if (confirm('確定要刪除這道題目嗎？')) {
+                showConfirm('❓ 確定要刪除嗎？', '確定要刪除這道題目嗎？此動作不可還原。', () => {
                     customPool.splice(index, 1);
                     saveCustomPool();
                     updateLevelSelectScreen(); // 更新地標按鈕
-                }
+                });
             };
 
             function handleImport() {
@@ -1480,16 +1736,18 @@
                 if (importData) {
                     try {
                         const decoded = JSON.parse(atob(importData));
-                        if (Array.isArray(decoded) && confirm(`偵測到來自老師/家長的分享！\n是否匯入這 ${decoded.length} 個自訂題目？`)) {
-                            // 合併並去重 (以國字為準)
-                            const existingChars = new Set(customPool.map(i => i.char));
-                            const newItems = decoded.filter(i => !existingChars.has(i.char));
-                            customPool = [...customPool, ...newItems];
-                            saveCustomPool();
-                            alert('匯入成功！您可以在「自訂專區」開始遊玩。');
-                            // 清除 URL 參數避免重複彈窗
-                            window.history.replaceState({}, document.title, window.location.pathname);
-                            updateLevelSelectScreen();
+                        if (Array.isArray(decoded)) {
+                            showConfirm('📦 偵測到分享題庫', `是否要匯入來自老師/家長的 ${decoded.length} 個題目？`, () => {
+                                // 合併並去重 (以國字為準)
+                                const existingChars = new Set(customPool.map(i => i.char));
+                                const newItems = decoded.filter(i => !existingChars.has(i.char));
+                                customPool = [...customPool, ...newItems];
+                                saveCustomPool();
+                                alert('匯入成功！您可以在「自訂專區」開始遊玩。');
+                                // 清除 URL 參數避免重複彈窗
+                                window.history.replaceState({}, document.title, window.location.pathname);
+                                updateLevelSelectScreen();
+                            });
                         }
                     } catch (e) {
                         console.error('匯入失敗:', e);
@@ -1498,6 +1756,122 @@
             }
 
             handleImport(); // 初始化檢查匯入
+
+            // --- v3.0 Firebase 雲端與多人連線邏輯 ---
+            let currentRoomId = null;
+            let isHost = false;
+            let unsubRoom = null;
+
+            async function uploadCustomPoolToCloud() {
+                if (customPool.length === 0) return alert("題庫是空的喔！");
+                const poolName = prompt("請為這個題庫取個好聽的名字（例如：動植物進階）：") || "未命名題庫";
+                try {
+                    const btn = document.getElementById('upload-cloud-btn'); btn.textContent = "上架中.."; btn.disabled = true;
+                    await window.fbDB.collection("market").add({
+                        name: poolName,
+                        questions: customPool,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert("🎉 上架成功！全台灣家長都能看見囉！");
+                } catch (e) { alert("上架失敗..."); }
+                finally { const btn = document.getElementById('upload-cloud-btn'); btn.textContent = "☁️ 上架雲端"; btn.disabled = false; }
+            }
+
+            async function fetchCloudMarket() {
+                const list = document.getElementById('market-list');
+                list.innerHTML = "<p style='text-align: center; color: #64748b;'>正在連線至雲端...</p>";
+                document.getElementById('cloud-market-overlay').style.display = 'flex';
+                try {
+                    const snap = await window.fbDB.collection("market").orderBy("createdAt", "desc").limit(10).get();
+                    list.innerHTML = snap.empty ? "<p style='text-align: center; color: #64748b;'>目前空空如也</p>" : "";
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        const card = document.createElement('div');
+                        card.className = "lobby-player-item";
+                        card.style.cursor = "default";
+                        card.innerHTML = `
+                            <div>
+                                <strong style="display:block; font-size:18px;">${d.name}</strong>
+                                <small style="color:#64748b;">📚 ${d.questions.length} 題</small>
+                            </div>
+                            <button class="btn" onclick="importCloudPool('${doc.id}')" 
+                                style="font-size:16px; padding:8px 15px; margin:0; background:var(--primary-color);">💾 下載</button>
+                        `;
+                        list.appendChild(card);
+                    });
+                } catch (e) { list.innerHTML = "連線失敗"; }
+            }
+
+            window.importCloudPool = async (id) => {
+                try {
+                    const doc = await window.fbDB.collection("market").doc(id).get();
+                    if (doc.exists) {
+                        const qs = doc.data().questions;
+                        const existing = new Set(customPool.map(i => i.char));
+                        customPool = [...customPool, ...qs.filter(q => !existing.has(q.char))];
+                        saveCustomPool(); alert("✅ 下載匯入完成！");
+                        document.getElementById('cloud-market-overlay').style.display = 'none';
+                    }
+                } catch (e) { alert("下載失敗"); }
+            };
+
+            async function createMultiplayerRoom() {
+                const id = Math.floor(100000 + Math.random() * 900000).toString();
+                const name = prompt("房主名稱：") || "老師";
+                if (!window.fbAuth.currentUser) return alert("❌ 您尚未登入雲端（可能是網路或驗證服務未啟動），無法建立房間。");
+                await window.fbDB.collection("rooms").doc(id).set({
+                    status: "waiting",
+                    players: [{ name: name, score: 0, id: window.fbAuth.currentUser.uid }]
+                });
+                currentRoomId = id; isHost = true; showLobby(id);
+            }
+
+            async function joinMultiplayerRoom() {
+                const id = document.getElementById('room-id-input').value.trim();
+                const name = prompt("您的名字：") || "玩家";
+                const ref = window.fbDB.collection("rooms").doc(id);
+                const doc = await ref.get();
+                if (!doc.exists) return alert("查無此房間");
+                if (!window.fbAuth.currentUser) return alert("❌ 您尚未登入雲端，無法加入房間。");
+                await ref.update({ players: firebase.firestore.FieldValue.arrayUnion({ name: name, score: 0, id: window.fbAuth.currentUser.uid }) });
+                currentRoomId = id; isHost = false; showLobby(id);
+            }
+
+            function showLobby(id) {
+                document.getElementById('multiplayer-setup').style.display = 'none';
+                document.getElementById('lobby-view').style.display = 'block';
+                document.getElementById('display-room-id').textContent = id;
+                if (isHost) document.getElementById('start-multiplayer-game-btn').style.display = 'block';
+                if (unsubRoom) unsubRoom();
+                unsubRoom = window.fbDB.collection("rooms").doc(id).onSnapshot(doc => {
+                    if (!doc.exists) return;
+                    const d = doc.data();
+                    document.getElementById('player-list').innerHTML = d.players.map(p => `
+                        <div class="lobby-player-item">
+                            <span>👤 ${p.name}</span>
+                            <span style="color:var(--accent-color)">${p.score} 分</span>
+                        </div>
+                    `).join('');
+                    if (d.status === "playing" && activeScreen !== 'game') {
+                        currentQuestions = gameLevels.flatMap(l => l.questions).sort(() => 0.5 - Math.random()).slice(0, 5);
+                        isEndlessMode = false; currentLevelIndex = 999;
+                        lives = 3; currentQuestionIndex = 0; currentScore = 0;
+                        showScreen('game'); loadQuestion();
+                        document.getElementById('multiplayer-overlay').style.display = 'none';
+                    }
+                });
+            }
+
+            async function triggerStartGame() {
+                if (isHost) await window.fbDB.collection("rooms").doc(currentRoomId).update({ status: "playing" });
+            }
+
+            async function syncScoreToCloud() {
+                const ref = window.fbDB.collection("rooms").doc(currentRoomId);
+                const doc = await ref.get();
+                const p = doc.data().players.map(player => player.id === window.fbAuth.currentUser.uid ? { ...player, score: currentScore } : player);
+                await ref.update({ players: p });
+            }
 
             function speakWord(word) {
                 if ('speechSynthesis' in window) {
@@ -1624,6 +1998,9 @@
                     interactionArea.classList.add('correct'); triggerConfetti();
                     if (navigator.vibrate) navigator.vibrate(50); // 震動回饋
                     progressBarInner.style.width = `${(correctAnswersInLevel / currentQuestions.length) * 100}%`;
+
+                    // --- v3.0 多人即時同步 ---
+                    if (currentLevelIndex === 999) syncScoreToCloud();
 
                     // 加倍獎勵時間
                     if (currentLevelIndex >= 3) {
@@ -1877,10 +2254,48 @@
                 }
             });
 
+            document.getElementById('view-market-btn')?.addEventListener('click', fetchCloudMarket);
+            document.getElementById('close-market-btn')?.addEventListener('click', () => {
+                document.getElementById('cloud-market-overlay').style.display = 'none';
+            });
+
+            document.getElementById('open-multiplayer-btn')?.addEventListener('click', () => {
+                document.getElementById('multiplayer-overlay').style.display = 'flex';
+            });
+            document.getElementById('close-multiplayer-btn')?.addEventListener('click', () => {
+                document.getElementById('multiplayer-overlay').style.display = 'none';
+                if (unsubRoom) unsubRoom();
+            });
+            document.getElementById('create-room-btn')?.addEventListener('click', createMultiplayerRoom);
+            document.getElementById('join-room-btn')?.addEventListener('click', joinMultiplayerRoom);
+            document.getElementById('start-multiplayer-game-btn')?.addEventListener('click', triggerStartGame);
+
+            // 綁定全域下載函式 (因為它是動態生成的)
+            window.importCloudPool = importCloudPool;
             document.getElementById('check-btn').addEventListener('click', () => checkAnswer(false));
+            document.getElementById('view-market-btn').onclick = fetchCloudMarket;
+            document.getElementById('upload-cloud-btn').onclick = uploadCustomPoolToCloud;
+            document.getElementById('open-multiplayer-btn').onclick = () => document.getElementById('multiplayer-overlay').style.display = 'flex';
+            document.getElementById('close-multiplayer-btn').onclick = () => { document.getElementById('multiplayer-overlay').style.display = 'none'; if (unsubRoom) unsubRoom(); };
+            document.getElementById('create-room-btn').onclick = createMultiplayerRoom;
+            document.getElementById('join-room-btn').onclick = joinMultiplayerRoom;
+            document.getElementById('start-multiplayer-game-btn').onclick = triggerStartGame;
             document.getElementById('clear-btn').addEventListener('click', () => { userAnswer = ''; updateAnswerDisplay(); });
-            document.getElementById('quit-level-btn').addEventListener('click', () => { clearInterval(countdownInterval); currentCombo = 0; if (confirm('確定要放棄這一關嗎？進度將不會儲存喔！')) { showScreen('levelSelect'); } else { startTimer(); } });
-            resetButton.addEventListener('click', () => { if (confirm('確定要清除所有遊戲進度和成績嗎？\n(同時會清除成就榜徽章喔！)')) { gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; saveGameState(); updateLevelSelectScreen(); renderAchievements(); } });
+            document.getElementById('quit-level-btn').addEventListener('click', () => {
+                clearInterval(countdownInterval);
+                currentCombo = 0;
+                showConfirm('❓ 確定要放棄嗎？', '這一關的進度將不會儲存喔！要回地圖選單嗎？', () => {
+                    showScreen('levelSelect');
+                });
+            });
+            resetButton.addEventListener('click', () => {
+                showConfirm('⚠️ 警告', '確定要清除所有遊戲進度與成就嗎？此操作不可還原喔！', () => {
+                    gameState = { unlockedLevels: 1, hearts: {}, achievements: [] };
+                    saveGameState();
+                    updateLevelSelectScreen();
+                    renderAchievements();
+                });
+            });
             muteBtn.addEventListener('click', () => { isMuted = !isMuted; muteBtn.textContent = isMuted ? '🔇' : '🔊'; toggleBgm(); });
 
             // Parent Dashboard Events

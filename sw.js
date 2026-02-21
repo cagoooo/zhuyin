@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bopomofo-v2.5.0';
+const CACHE_NAME = 'bopomofo-v2.7.0';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -38,17 +38,27 @@ self.addEventListener('activate', (event) => {
 
 // Fetch: 離線策略
 self.addEventListener('fetch', (event) => {
-    // 忽略外部語音 API 與 Chrome 擴充功能
-    if (event.request.url.startsWith('chrome-extension') || event.request.url.includes('google-analytics')) return;
+    // 1. 僅處理 GET 請求，忽略 POST, PUT, DELETE (解決 Cache.put 報錯)
+    if (event.request.method !== 'GET') return;
+
+    // 2. 忽略外部 API、Firebase、Google Analytics 與 Chrome 擴充功能
+    const url = event.request.url;
+    if (
+        url.startsWith('chrome-extension') ||
+        url.includes('google-analytics') ||
+        url.includes('googleapis.com') ||
+        url.includes('firebaseio.com') ||
+        url.includes('firebasestorage.googleapis.com')
+    ) return;
 
     event.respondWith(
         caches.match(event.request).then((response) => {
-            // 1. Cache Hit: 直接返回
+            // 3. Cache Hit: 直接返回
             if (response) return response;
 
-            // 2. Cache Miss: 從網絡獲取
+            // 4. Cache Miss: 從網絡獲取
             return fetch(event.request).then((networkResponse) => {
-                // 如果是有效的本地資源或 CDN 圖片，存入快取
+                // 如果是有效的本地資源或 CDN 圖片，且請求是 GET，則存入快取
                 if (networkResponse && networkResponse.status === 200) {
                     const responseToCache = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
