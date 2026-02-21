@@ -14,6 +14,7 @@
     <meta name="theme-color" content="#4F46E5">
     <link rel="apple-touch-icon"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%234F46E5'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='300' fill='white' text-anchor='middle' dy='.3em'%3E🎲%3C/text%3E%3C/svg%3E">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
 
@@ -1209,6 +1210,99 @@
         .theme-fruit {
             background-color: #ffecd1;
         }
+
+        /* --- Parent Dashboard Styles --- */
+        .parent-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            box-shadow: var(--clay-shadow-btn);
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .custom-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 16px;
+            box-shadow: var(--clay-shadow-btn);
+        }
+
+        .custom-item-info {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: var(--heart-red);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .qr-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+        }
+
+        #qrcode {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            font-size: 16px;
+        }
+
+        #custom-pool-list {
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+        }
     </style>
 </head>
 
@@ -1216,6 +1310,7 @@
     <div class="game-world">
         <!-- 畫面容器 -->
         <div id="start-screen" class="screen active">
+            <button class="parent-btn" id="open-parent-btn">⚙️ 家長模式</button>
             <h1>ㄅㄆㄇ 注音大挑戰</h1>
             <p>準備好開始學習了嗎？</p><button id="start-game-btn" class="btn">開始冒險</button>
             <button id="achievements-btn" class="btn" style="background-color: #fca311; box-shadow: 0 4px #d08c00;">🏆
@@ -1288,6 +1383,35 @@
             <div><button id="retry-level-btn" class="btn">再玩一次</button><button id="next-level-btn"
                     class="btn">下一關</button><button id="back-to-map-btn" class="btn">回地圖</button></div>
         </div>
+
+        <!-- 家長後台介面 -->
+        <div id="parent-dashboard" class="screen">
+            <h2>⚙️ 家長模式：自訂題庫</h2>
+            <div class="form-group">
+                <label>新增題目 (國字)</label>
+                <input type="text" id="custom-char" class="form-input" placeholder="例如：蘋">
+            </div>
+            <div class="form-group">
+                <label>注音 (例如：ㄆㄧㄥˊ)</label>
+                <input type="text" id="custom-bopomofo" class="form-input" placeholder="小撇步：聲調寫在最後">
+            </div>
+            <button id="add-custom-btn" class="btn" style="background-color: #6BCB77;">➕ 加入題庫</button>
+
+            <div id="custom-pool-list"></div>
+
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button id="share-qr-btn" class="btn" style="background-color: #4D96FF;">📱 生成分享 QR</button>
+                <button id="close-parent-btn" class="btn">返回遊戲</button>
+            </div>
+        </div>
+
+        <!-- QR 顯示遮罩 -->
+        <div id="qr-overlay" class="qr-overlay">
+            <h3>📱 掃描 QR 碼匯入題庫</h3>
+            <div id="qrcode"></div>
+            <p>請用另一台裝置掃描此碼</p>
+            <button id="close-qr-btn" class="btn">關閉</button>
+        </div>
     </div>
 
     <script>
@@ -1315,8 +1439,65 @@
             let audioContext, bgmInterval, countdownInterval, timeRemaining;
             let currentCombo = 0, hintsLeft = 1;
             let currentScore = 0, isEndlessMode = false;
+            let customPool = JSON.parse(localStorage.getItem('bopomofoCustomPool') || '[]');
             const QUESTIONS_PER_LEVEL = 5;
             const TIME_ADD_PER_QUESTION = 15; // 困難模式下每題增加 15 秒
+
+            // --- 家長模式核心邏輯 ---
+            function saveCustomPool() {
+                localStorage.setItem('bopomofoCustomPool', JSON.stringify(customPool));
+                renderCustomPoolList();
+            }
+
+            function renderCustomPoolList() {
+                const list = document.getElementById('custom-pool-list');
+                list.innerHTML = customPool.length ? '' : '<p style="color:#666;">目前還沒有自訂題目喔！</p>';
+                customPool.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'custom-item-row';
+                    div.innerHTML = `
+                        <div class="custom-item-info">
+                            <span style="font-size:24px; font-weight:bold;">${item.char}</span>
+                            <span style="color:var(--primary-color);">${item.bopomofo}</span>
+                        </div>
+                        <button class="delete-btn" onclick="removeCustomItem(${index})">刪除</button>
+                    `;
+                    list.appendChild(div);
+                });
+            }
+
+            window.removeCustomItem = (index) => {
+                if (confirm('確定要刪除這道題目嗎？')) {
+                    customPool.splice(index, 1);
+                    saveCustomPool();
+                    updateLevelSelectScreen(); // 更新地標按鈕
+                }
+            };
+
+            function handleImport() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const importData = urlParams.get('import');
+                if (importData) {
+                    try {
+                        const decoded = JSON.parse(atob(importData));
+                        if (Array.isArray(decoded) && confirm(`偵測到來自老師/家長的分享！\n是否匯入這 ${decoded.length} 個自訂題目？`)) {
+                            // 合併並去重 (以國字為準)
+                            const existingChars = new Set(customPool.map(i => i.char));
+                            const newItems = decoded.filter(i => !existingChars.has(i.char));
+                            customPool = [...customPool, ...newItems];
+                            saveCustomPool();
+                            alert('匯入成功！您可以在「自訂專區」開始遊玩。');
+                            // 清除 URL 參數避免重複彈窗
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                            updateLevelSelectScreen();
+                        }
+                    } catch (e) {
+                        console.error('匯入失敗:', e);
+                    }
+                }
+            }
+
+            handleImport(); // 初始化檢查匯入
 
             function speakWord(word) {
                 if ('speechSynthesis' in window) {
@@ -1485,6 +1666,16 @@
                     if (!isLocked) { btn.onclick = () => { playSound('touch'); startGame(index); }; }
                     levelSelectContainer.appendChild(btn);
                 });
+
+                // 新增自訂專區按鈕 (如果題庫不為空)
+                if (customPool.length > 0) {
+                    const customBtn = document.createElement('button');
+                    customBtn.className = 'btn level-btn custom-zone';
+                    customBtn.style.backgroundColor = '#6BCB77';
+                    customBtn.innerHTML = `<div class="level-icon">🌟</div><div>自訂專區</div><div class="hearts">${customPool.length} 題</div>`;
+                    customBtn.onclick = () => { playSound('touch'); startGame(-1); }; // -1 代表自訂模式
+                    levelSelectContainer.appendChild(customBtn);
+                }
             }
 
             function populateReviewScreen() {
@@ -1596,7 +1787,7 @@
                 questionImage.style.display = 'block';
                 questionImageFallback.style.display = 'none';
                 questionImage.src = q.image;
-                questionImageFallback.textContent = gameLevels[currentLevelIndex].icon; // 使用關卡圖示作為保底
+                questionImageFallback.textContent = currentLevelIndex === -1 ? '🌟' : gameLevels[currentLevelIndex].icon; // 使用關卡圖示作為保底
 
                 charDisplay.textContent = q.char;
                 speechBtn.onclick = () => speakWord(q.char);
@@ -1618,11 +1809,19 @@
                 levelResults = [];
 
                 // 取樣題目
-                const allQs = gameLevels[levelIndex].questions;
-                currentQuestions = [...allQs].sort(() => 0.5 - Math.random()).slice(0, QUESTIONS_PER_LEVEL);
+                if (levelIndex === -1) {
+                    currentQuestions = [...customPool].sort(() => 0.5 - Math.random());
+                } else {
+                    const allQs = gameLevels[levelIndex].questions;
+                    currentQuestions = [...allQs].sort(() => 0.5 - Math.random()).slice(0, QUESTIONS_PER_LEVEL);
+                }
 
                 updateLivesDisplay(); progressBarInner.style.width = '0%';
-                updateDynamicBackground(levelIndex);
+                if (levelIndex === -1) {
+                    document.getElementById('game-screen').className = 'screen active theme-warm';
+                } else {
+                    updateDynamicBackground(levelIndex);
+                }
                 showScreen('game'); loadQuestion();
             }
 
@@ -1683,6 +1882,40 @@
             document.getElementById('quit-level-btn').addEventListener('click', () => { clearInterval(countdownInterval); currentCombo = 0; if (confirm('確定要放棄這一關嗎？進度將不會儲存喔！')) { showScreen('levelSelect'); } else { startTimer(); } });
             resetButton.addEventListener('click', () => { if (confirm('確定要清除所有遊戲進度和成績嗎？\n(同時會清除成就榜徽章喔！)')) { gameState = { unlockedLevels: 1, hearts: {}, achievements: [] }; saveGameState(); updateLevelSelectScreen(); renderAchievements(); } });
             muteBtn.addEventListener('click', () => { isMuted = !isMuted; muteBtn.textContent = isMuted ? '🔇' : '🔊'; toggleBgm(); });
+
+            // Parent Dashboard Events
+            document.getElementById('open-parent-btn').onclick = () => {
+                renderCustomPoolList();
+                showScreen('parentDashboard');
+            };
+            document.getElementById('close-parent-btn').onclick = () => showScreen('start');
+            document.getElementById('add-custom-btn').onclick = () => {
+                const char = document.getElementById('custom-char').value.trim();
+                const bopomofo = document.getElementById('custom-bopomofo').value.trim();
+                if (!char || !bopomofo) return alert('請完整輸入國字與注音！');
+                customPool.push({ char, bopomofo, image: '' });
+                document.getElementById('custom-char').value = '';
+                document.getElementById('custom-bopomofo').value = '';
+                saveCustomPool();
+                updateLevelSelectScreen();
+            };
+
+            document.getElementById('share-qr-btn').onclick = () => {
+                if (customPool.length === 0) return alert('題庫是空的，無法分享喔！');
+                const encoded = btoa(JSON.stringify(customPool));
+                const shareUrl = window.location.origin + window.location.pathname + '?import=' + encoded;
+
+                document.getElementById('qr-overlay').style.display = 'flex';
+                document.getElementById('qrcode').innerHTML = '';
+                new QRCode(document.getElementById('qrcode'), {
+                    text: shareUrl,
+                    width: 256,
+                    height: 256
+                });
+            };
+            document.getElementById('close-qr-btn').onclick = () => {
+                document.getElementById('qr-overlay').style.display = 'none';
+            };
 
             // PWA Service Worker Registration
             if ('serviceWorker' in navigator) {
