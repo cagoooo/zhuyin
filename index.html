@@ -1312,9 +1312,21 @@
 
             function speakWord(word) {
                 if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel(); // 清除排隊中的語音
                     const utterance = new SpeechSynthesisUtterance(word);
                     utterance.lang = 'zh-TW';
-                    utterance.rate = 0.8;
+                    utterance.rate = 0.9;  // 稍微加快速率
+                    utterance.pitch = 1.1; // 提高音調增加穿透力
+                    utterance.volume = 1.0; // 鎖定最大音量
+
+                    // Ducking: 說話時自動壓低背景音樂音量
+                    if (window.bgmAudio && !isMuted) {
+                        window.bgmAudio.volume = 0.2;
+                        utterance.onend = () => {
+                            if (window.bgmAudio && !isMuted) window.bgmAudio.volume = 0.6;
+                        };
+                    }
+
                     window.speechSynthesis.speak(utterance);
                 }
             }
@@ -1363,6 +1375,7 @@
                 if (!window.bgmAudio) {
                     window.bgmAudio = new Audio('./assets/sounds/bgm.mp3');
                     window.bgmAudio.loop = true;
+                    window.bgmAudio.volume = 0.6; // 設定預設音量，留出語音空間
                 }
                 window.bgmAudio.play().catch(() => {
                     // Fallback 到原有合成 BGM 邏輯
