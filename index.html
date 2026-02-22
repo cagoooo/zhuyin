@@ -2555,10 +2555,9 @@
             };
 
             function showScreen(screenId) {
-                Object.values(screens).forEach(s => {
-                    if (s) {
-                        s.classList.remove('active');
-                    }
+                activeScreen = screenId;
+                document.querySelectorAll('.screen.active').forEach(s => {
+                    s.classList.remove('active');
                 });
 
                 // 動態取得目標螢幕元件 (如果沒有存在 cache 中)
