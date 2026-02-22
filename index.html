@@ -412,12 +412,17 @@
         }
 
         #reset-progress-btn {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
+            position: fixed;
+            /* 改為 fixed 避免與捲動內容重疊 */
+            bottom: 20px;
+            right: 20px;
             font-size: 14px;
             padding: 8px 15px;
             background-color: var(--danger-color);
+            z-index: 100;
+            /* 確保不被新關卡卡片遮擋 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* 增加陰影提升辨識度 */
         }
 
 
