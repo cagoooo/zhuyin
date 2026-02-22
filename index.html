@@ -115,6 +115,19 @@
             visibility: visible;
         }
 
+        .scrollable-screen {
+            justify-content: flex-start;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .scrollable-screen>* {
+            flex-shrink: 0;
+            max-width: 100%;
+        }
+
         .btn {
             font-family: 'Baloo 2', 'Comic Neue', sans-serif;
             font-weight: 700;
@@ -245,8 +258,8 @@
         }
 
         .level-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             width: 100%;
             max-width: 800px;
@@ -270,6 +283,89 @@
             line-height: 1.2;
             border: 2px solid rgba(255, 255, 255, 0.5);
             overflow: hidden;
+        }
+
+        /* 吉祥物容器 */
+        #mascot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            z-index: 2000;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        #mascot-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .mascot-bubble {
+            position: absolute;
+            top: -60px;
+            right: 0;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            color: var(--text-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .mascot-bubble.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mascot-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 25px;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+
+        @keyframes mascot-idle {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-5px) scale(1.05);
+            }
+        }
+
+        @keyframes mascot-bounce {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2) translateY(-20px);
+            }
+        }
+
+        .mascot-idle {
+            animation: mascot-idle 3s infinite ease-in-out;
+        }
+
+        .mascot-bounce {
+            animation: mascot-bounce 0.5s ease;
         }
 
         .level-btn:not(.locked):nth-child(5n+1) {
@@ -324,18 +420,7 @@
             background-color: var(--danger-color);
         }
 
-        #fullscreen-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 16px;
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            line-height: 40px;
-            z-index: 101;
-            /* 確保在最上層 */
-        }
+
 
         .voice-btn {
             background: #FF4D4D;
@@ -1276,8 +1361,10 @@
 
         @media (min-width: 600px) and (min-height: 600px) {
             .game-world {
-                max-width: 95vw;
-                max-height: 95vh;
+                max-width: 800px;
+                width: 95vw;
+                height: 95vh;
+                max-height: 900px;
             }
 
             .level-btn {
@@ -1525,6 +1612,85 @@
             margin: 0;
             padding: 12px;
         }
+
+        /* --- Parent Lock Modal --- */
+        #parent-lock-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .parent-lock-card {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border: 5px solid var(--accent-color);
+        }
+
+        #lock-question {
+            font-size: 28px;
+            font-weight: 900;
+            color: #1e293b;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+
+        #lock-input {
+            width: 100%;
+            font-size: 32px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 15px;
+            border: 3px solid #e2e8f0;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        /* --- Health Alert --- */
+        #health-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #6BCB77;
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .health-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        #health-timer {
+            font-size: 24px;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px 25px;
+            border-radius: 30px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -1535,10 +1701,14 @@
             <button class="parent-btn" id="open-parent-btn">⚙️ 家長模式</button>
             <h1>ㄅㄆㄇ 注音大挑戰</h1>
             <p>準備好開始學習了嗎？</p><button id="start-game-btn" class="btn">開始冒險</button>
-            <button id="achievements-btn" class="btn" style="background-color: #fca311; box-shadow: 0 4px #d08c00;">🏆
-                榮耀榜</button>
-            <button id="open-multiplayer-btn" class="btn" style="background-color: #4CAF50;">🏫 多人連線</button>
-            <button id="fullscreen-btn" class="btn icon-btn" title="全螢幕">⛶</button>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center;">
+                <button id="achievements-btn" class="btn"
+                    style="background-color: #fca311; box-shadow: 0 4px #d08c00;">🏆
+                    榮耀榜</button>
+                <button id="shop-btn" class="btn" style="background-color: #ec4899; box-shadow: 0 4px #be185d;">🛍️
+                    商城</button>
+                <button id="open-multiplayer-btn" class="btn" style="background-color: #4CAF50;">🏫 多人連線</button>
+            </div>
         </div>
         <div id="level-select-screen" class="screen">
             <button class="parent-btn" id="back-to-home-from-map" style="left: 20px; right: auto;">🏠 返回</button>
@@ -1549,14 +1719,40 @@
             </div>
             <div id="level-buttons-container" class="level-buttons"></div>
         </div>
-        <div id="achievements-screen" class="screen">
+        <div id="achievements-screen" class="screen scrollable-screen">
             <h2>🏆 榮耀徽章</h2>
             <div id="achievements-container"></div><br><button id="back-to-start-btn" class="btn">回首頁</button>
+        </div>
+        <div id="shop-screen" class="screen scrollable-screen"
+            style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);">
+            <h2>🛍️ 虛擬商城</h2>
+            <div
+                style="background: white; padding: 10px 20px; border-radius: 30px; font-size: 24px; font-weight: bold; color: #F59E0B; margin-bottom: 20px; box-shadow: var(--clay-shadow-btn);">
+                我的財富：💰 <span id="shop-coin-count">0</span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;">
+                <button class="btn shop-tab-btn active" data-tab="hats" style="padding: 10px 20px; font-size: 18px;">🎩
+                    帽子</button>
+                <button class="btn shop-tab-btn" data-tab="colors"
+                    style="padding: 10px 20px; font-size: 18px; filter: grayscale(1); opacity: 0.6;">🎨 顏色
+                    (即將推出)</button>
+            </div>
+
+            <div id="shop-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; width: 100%; max-width: 600px;">
+                <!-- 商品會被動態注入這裡 -->
+            </div>
+
+            <button id="close-shop-btn" class="btn" style="margin-top: 30px;">返回首頁</button>
         </div>
         <div id="game-screen" class="screen">
             <div class="top-bar">
                 <div id="lives-display" class="lives"></div>
-                <div id="timer-display">⏱️ <span id="time-left"></span></div>
+                <div id="coins-display" class="coins"
+                    style="font-size: 20px; font-weight: 900; background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px; color: #F59E0B; margin-left: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    💰 <span id="game-coin-count">0</span></div>
+                <div id="timer-display" style="margin-left: 10px;">⏱️ <span id="time-left"></span></div>
                 <div class="progress-bar">
                     <div id="progress-bar-inner"></div>
                 </div>
@@ -1612,7 +1808,7 @@
         </div>
 
         <!-- 家長後台介面 -->
-        <div id="parent-dashboard" class="screen">
+        <div id="parent-dashboard" class="screen scrollable-screen">
             <h2>⚙️ 家長模式：自訂題庫</h2>
             <div class="form-group">
                 <label>新增題目 (國字)</label>
@@ -1638,6 +1834,17 @@
                 <canvas id="radar-canvas" width="300" height="300"></canvas>
                 <p id="radar-empty-msg" style="color:#64748b; font-size:14px; display:none;">還沒有足夠的練習數據喔！</p>
             </div>
+
+            <h4 style="margin-top:25px;">🎤 給寶貝的鼓勵語音</h4>
+            <div
+                style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 16px; display: flex; align-items: center; gap: 10px;">
+                <button id="record-btn" class="btn" style="background-color: #EF4444; flex: 1;">🔴 開始錄音</button>
+                <button id="play-record-btn" class="btn" style="background-color: #6BCB77; flex: 1; display: none;">▶️
+                    試聽</button>
+            </div>
+            <p style="font-size: 12px; color: #64748b; margin-top: 5px;">錄製一段鼓勵的話，當孩子通關成功時會播放喔！</p>
+            <button id="export-report-btn" class="btn"
+                style="background-color: #818CF8; width: 100%; margin-top: 15px;">📊 匯出學習報告</button>
         </div>
 
         <!-- QR 顯示遮罩 -->
@@ -1651,13 +1858,22 @@
         <!-- 雲端市集遮罩 (v3.0) -->
         <div id="cloud-market-overlay" class="qr-overlay" style="display: none;">
             <h3>🌩️ 雲端題庫市集</h3>
-            <div class="clay-card" style="width: 100%; max-width: 500px; padding: 15px;">
+            <div class="clay-card" style="width: 100%; max-width: 500px; padding: 20px; margin-bottom: 20px;">
+                <h4 style="margin-top:0; color:var(--primary-color);">🔑 代碼一鍵獲取</h4>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="market-code-input" placeholder="輸入 6 位數代碼" maxlength="6"
+                        style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--secondary-color); font-size: 18px; text-align: center;">
+                    <button id="import-code-btn" class="btn"
+                        style="margin:0; background:var(--primary-color);">獲取</button>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+                <h4 style="color:var(--secondary-color);">🔥 最新熱門題庫</h4>
                 <div id="market-list"
-                    style="max-height: 500px; overflow-y: auto; width: 100%; padding: 10px; background: #f8fafc; border-radius: 20px;">
+                    style="max-height: 350px; overflow-y: auto; width: 100%; padding: 10px; background: #f8fafc; border-radius: 20px;">
                     <p style="text-align: center; color: #64748b;">正在連線至雲端...</p>
                 </div>
             </div>
-            <button id="close-market-btn" class="btn" style="margin-top: 25px; background: #64748b;">關閉市集</button>
+            <button id="close-market-btn" class="btn" style="background: #64748b;">關閉市集</button>
         </div>
 
         <!-- 多人競賽開房/加入遮罩 (v3.0) -->
@@ -1708,6 +1924,57 @@
                 </div>
             </div>
         </div>
+
+        <!-- 家長算術鎖 -->
+        <div id="parent-lock-overlay">
+            <div class="parent-lock-card">
+                <div style="font-size: 40px;">🔐</div>
+                <h2>家長驗證</h2>
+                <p>請輸入正確答案以解鎖</p>
+                <div id="lock-question">12 + 5 = ?</div>
+                <input type="number" id="lock-input" placeholder="答案" inputmode="numeric">
+                <div style="display: flex; gap: 10px;">
+                    <button id="lock-cancel-btn" class="btn" style="flex:1;">取消</button>
+                    <button id="lock-confirm-btn" class="btn"
+                        style="background-color: var(--accent-color); flex:1; color:white;">確認</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 護眼提示 -->
+        <div id="health-alert-overlay">
+            <div class="health-icon">🌳</div>
+            <h1>讓眼睛休息一下吧！</h1>
+            <p style="font-size: 18px;">已經連續挑戰 20 分鐘囉，<br>看向遠方的草地或天空放鬆一下吧。</p>
+            <div id="health-timer">剩餘時間：20 秒</div>
+        </div>
+        <!-- 吉祥物與對話框 (v3.2.0) -->
+        <div id="mascot-container" class="mascot-idle">
+            <div id="mascot-bubble" class="mascot-bubble">加油加油！</div>
+            <svg id="mascot-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- 噴火龍身軀 -->
+                <path id="mascot-body" d="M40,140 Q40,60 100,60 Q160,60 160,140 L160,160 Q100,180 40,160 Z"
+                    fill="#6BCB77" stroke="#4DAF50" stroke-width="4" />
+                <!-- 肚子 -->
+                <ellipse cx="100" cy="120" rx="40" ry="50" fill="#C1E9C1" />
+                <!-- 眼睛 -->
+                <g id="mascot-eyes">
+                    <circle id="eye-l" cx="75" cy="95" r="8" fill="white" />
+                    <circle id="eye-r" cx="125" cy="95" r="8" fill="white" />
+                    <circle cx="75" cy="95" r="4" fill="#1E1B4B" />
+                    <circle cx="125" cy="95" r="4" fill="#1E1B4B" />
+                </g>
+                <!-- 腮紅 -->
+                <circle cx="60" cy="115" r="6" fill="#FFB6C1" opacity="0.6" />
+                <circle cx="140" cy="115" r="6" fill="#FFB6C1" opacity="0.6" />
+                <!-- 嘴巴 -->
+                <path id="mascot-mouth" d="M85,130 Q100,140 115,130" fill="none" stroke="#1E1B4B" stroke-width="3"
+                    stroke-linecap="round" />
+                <!-- 龍角 -->
+                <path d="M70,65 Q60,40 50,55" fill="#FFD93D" stroke="#D97706" stroke-width="2" />
+                <path d="M130,65 Q140,40 150,55" fill="#FFD93D" stroke="#D97706" stroke-width="2" />
+            </svg>
+        </div>
     </div>
 
     <script type="module">
@@ -1732,15 +1999,73 @@
             window.fbDB = null;
             window.fbAuth = null;
         }
-    </script>
 
-    <script>
+        // --- 【核心存儲升級】IndexedDB 引擎 (v3.1) ---
+        class ZhuyinDB {
+            constructor() {
+                this.dbName = 'ZhuyinChallengeDB';
+                this.version = 2;
+                this.db = null;
+            }
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.version);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings');
+                        if (!db.objectStoreNames.contains('customPool')) db.createObjectStore('customPool');
+                        if (!db.objectStoreNames.contains('stats')) db.createObjectStore('stats');
+                        if (!db.objectStoreNames.contains('media')) db.createObjectStore('media');
+                    };
+                    request.onsuccess = (e) => { this.db = e.target.result; resolve(); };
+                    request.onerror = (e) => reject(e.target.error);
+                });
+            }
+            async get(store, key) {
+                if (!this.db) await this.init();
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction(store, 'readonly');
+                    const request = tx.objectStore(store).get(key);
+                    request.onsuccess = () => resolve(request.result);
+                });
+            }
+            async set(store, key, val) {
+                if (!this.db) await this.init();
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction(store, 'readwrite');
+                    tx.objectStore(store).put(val, key);
+                    tx.oncomplete = () => resolve();
+                });
+            }
+        }
+        window.storage = new ZhuyinDB();
+
+        async function initStorageAndMigrate() {
+            await window.storage.init();
+            const legacyState = localStorage.getItem('bopomofoPartyState');
+            if (legacyState && !await window.storage.get('settings', 'gameState')) {
+                console.log("📦 發現舊有數據，正在遷移至 IndexedDB...");
+                await window.storage.set('settings', 'gameState', JSON.parse(legacyState));
+                const legacyPool = localStorage.getItem('bopomofoCustomPool');
+                if (legacyPool) await window.storage.set('customPool', 'main', JSON.parse(legacyPool));
+                const legacyStats = localStorage.getItem('bopomofoStats');
+                if (legacyStats) await window.storage.set('stats', 'main', JSON.parse(legacyStats));
+                console.log("✅ 數據遷移完成！");
+            }
+        }
+        let gameState = { unlockedLevels: 1, hearts: {}, achievements: [], coins: 0, equipped: {} };
+        let bopomofoStats = {};
+        let customPool = [];
+
+        // 初始化儲存引擎 (UI 更新邏輯移至 DOMContentLoaded)
+        const storageReady = initStorageAndMigrate();
+
         // --- 【核心升級】擴充題庫 ---
         const gameLevels = [
             { name: "水果", icon: "🍎", questions: [{ char: '蘋', bopomofo: 'ㄆㄧㄥˊ', image: './assets/images/apple.png' }, { char: '蕉', bopomofo: 'ㄐㄧㄠ', image: './assets/images/banana.png' }, { char: '瓜', bopomofo: 'ㄍㄨㄚ', image: './assets/images/watermelon.png' }, { char: '莓', bopomofo: 'ㄇㄟˊ', image: './assets/images/strawberry.png' }, { char: '桃', bopomofo: 'ㄊㄠˊ', image: './assets/images/peach.png' }, { char: '萄', bopomofo: 'ㄊㄠˊ', image: './assets/images/grapes.png' }, { char: '橘', bopomofo: 'ㄐㄩˊ', image: 'https://img.icons8.com/color/200/tangerine.png' }, { char: '梨', bopomofo: 'ㄌㄧˊ', image: './assets/images/pear.png' }, { char: '檬', bopomofo: 'ㄇㄥˊ', image: 'https://img.icons8.com/color/200/lemon.png' }] },
             { name: "動物", icon: "🐶", questions: [{ char: '貓', bopomofo: 'ㄇㄠ', image: './assets/images/cat.png' }, { char: '狗', bopomofo: 'ㄍㄡˇ', image: './assets/images/dog.png' }, { char: '兔', bopomofo: 'ㄊㄨˋ', image: './assets/images/rabbit.png' }, { char: '魚', bopomofo: 'ㄩˊ', image: './assets/images/fish.png' }, { char: '熊', bopomofo: 'ㄒㄩㄥˊ', image: './assets/images/teddy-bear.png' }, { char: '虎', bopomofo: 'ㄏㄨˇ', image: 'https://img.icons8.com/color/200/tiger.png' }, { char: '獅', bopomofo: 'ㄕ', image: './assets/images/lion.png' }, { char: '象', bopomofo: 'ㄒㄧㄤˋ', image: './assets/images/elephant.png' }, { char: '猴', bopomofo: 'ㄏㄡˊ', image: 'https://img.icons8.com/color/200/monkey.png' }, { char: '鳥', bopomofo: 'ㄋㄧㄠˇ', image: './assets/images/bird.png' }] },
             { name: "交通", icon: "🚗", questions: [{ char: '車', bopomofo: 'ㄔㄜ', image: './assets/images/car.png' }, { char: '船', bopomofo: 'ㄔㄨㄢˊ', image: 'https://img.icons8.com/color/200/boat.png' }, { char: '機', bopomofo: 'ㄐㄧ', image: './assets/images/airplane.png' }, { char: '火', bopomofo: 'ㄏㄨㄛˇ', image: './assets/images/train.png' }, { char: '單', bopomofo: 'ㄉㄢ', image: './assets/images/bicycle.png' }, { char: '公', bopomofo: 'ㄍㄨㄥ', image: './assets/images/bus.png' }, { char: '卡', bopomofo: 'ㄎㄚˇ', image: './assets/images/truck.png' }] },
-            { name: "身體", icon: "✋", questions: [{ char: '頭', bopomofo: 'ㄊㄡˊ', image: './assets/images/head.png' }, { char: '手', bopomofo: 'ㄕㄡˇ', image: './assets/images/hand.png' }, { char: '脚', bopomofo: 'ㄐㄧㄠˇ', image: 'https://img.icons8.com/color/200/footprint.png' }, { char: '眼', bopomofo: 'ㄧㄢˇ', image: './assets/images/visible.png' }, { char: '口', bopomofo: 'ㄎㄡˇ', image: './assets/images/mouth.png' }, { char: '鼻', bopomofo: 'ㄅㄧˊ', image: 'https://img.icons8.com/color/200/nose.png' }, { char: '耳', bopomofo: 'ㄦˇ', image: 'https://img.icons8.com/color/200/ear.png' }] },
+            { name: "身體", icon: "✋", questions: [{ char: '頭', bopomofo: 'ㄊㄡˊ', image: './assets/images/head.png' }, { char: '手', bopomofo: 'ㄕㄡˇ', image: './assets/images/hand.png' }, { char: '腳', bopomofo: 'ㄐㄧㄠˇ', image: 'https://img.icons8.com/color/200/footprint.png' }, { char: '眼', bopomofo: 'ㄧㄢˇ', image: './assets/images/visible.png' }, { char: '口', bopomofo: 'ㄎㄡˇ', image: './assets/images/mouth.png' }, { char: '鼻', bopomofo: 'ㄅㄧˊ', image: 'https://img.icons8.com/color/200/nose.png' }, { char: '耳', bopomofo: 'ㄦˇ', image: 'https://img.icons8.com/color/200/ear.png' }] },
             { name: "家人", icon: "👨‍👩‍👧‍👦", questions: [{ char: '爸', bopomofo: 'ㄅㄚˋ', image: './assets/images/father.png' }, { char: '媽', bopomofo: 'ㄇㄚ', image: './assets/images/mother.png' }, { char: '哥', bopomofo: 'ㄍㄜ', image: './assets/images/boy.png' }, { char: '姐', bopomofo: 'ㄐㄧㄝˇ', image: './assets/images/girl.png' }, { char: '弟', bopomofo: 'ㄉㄧˋ', image: 'https://img.icons8.com/color/200/baby-boy.png' }, { char: '妹', bopomofo: 'ㄇㄟˋ', image: 'https://img.icons8.com/color/200/baby-girl.png' }, { char: '爺', bopomofo: 'ㄧㄝˊ', image: 'https://img.icons8.com/color/200/old-man.png' }] },
             { name: "學校", icon: "🏫", questions: [{ char: '書', bopomofo: 'ㄕㄨ', image: './assets/images/book.png' }, { char: '筆', bopomofo: 'ㄅㄧˇ', image: './assets/images/pen.png' }, { char: '尺', bopomofo: 'ㄔˇ', image: './assets/images/ruler.png' }, { char: '桌', bopomofo: 'ㄓㄨㄛ', image: 'https://img.icons8.com/color/200/school-desk.png' }, { char: '椅', bopomofo: 'ㄧˇ', image: 'https://img.icons8.com/color/200/chair.png' }, { char: '燈', bopomofo: 'ㄉㄥ', image: 'https://img.icons8.com/color/200/table-lamp.png' }, { char: '門', bopomofo: 'ㄇㄣˊ', image: './assets/images/door.png' }] },
             { name: "顏色", icon: "🎨", questions: [{ char: '紅', bopomofo: 'ㄏㄨㄥˊ', image: './assets/images/red.png' }, { char: '黃', bopomofo: 'ㄏㄨㄤˊ', image: './assets/images/yellow.png' }, { char: '藍', bopomofo: 'ㄌㄢˊ', image: './assets/images/blue.png' }, { char: '綠', bopomofo: 'ㄌㄩˋ', image: './assets/images/green.png' }, { char: '白', bopomofo: 'ㄅㄞˊ', image: './assets/images/white.png' }, { char: '黑', bopomofo: 'ㄏㄟ', image: './assets/images/black.png' }] },
@@ -1748,18 +2073,102 @@
             { name: "形狀", icon: "🔺", questions: [{ char: '圓', bopomofo: 'ㄩㄢˊ', image: 'https://img.icons8.com/color/200/filled-circle.png' }, { char: '方', bopomofo: 'ㄈㄤ', image: './assets/images/square.png' }, { char: '角', bopomofo: 'ㄐㄧㄠˇ', image: './assets/images/triangle.png' }, { char: '星', bopomofo: 'ㄒㄧㄥ', image: './assets/images/star.png' }, { char: '心', bopomofo: 'ㄒㄧㄣ', image: './assets/images/heart.png' }] },
             { name: "食物", icon: "🍔", questions: [{ char: '飯', bopomofo: 'ㄈㄢˋ', image: './assets/images/rice.png' }, { char: '麵', bopomofo: 'ㄇㄧㄢˋ', image: 'https://img.icons8.com/color/200/noodles.png' }, { char: '蛋', bopomofo: 'ㄉㄢˋ', image: './assets/images/egg.png' }, { char: '肉', bopomofo: 'ㄖㄡˋ', image: 'https://img.icons8.com/color/200/meat.png' }, { char: '菜', bopomofo: 'ㄘㄞˋ', image: './assets/images/vegetable.png' }, { char: '湯', bopomofo: 'ㄊㄤ', image: 'https://img.icons8.com/color/200/soup-plate.png' }, { char: '糖', bopomofo: 'ㄊㄤˊ', image: 'https://img.icons8.com/color/200/candy.png' }] }
         ];
+        const shopItems = [
+            { id: 'hat-cap', name: '鴨舌帽', price: 10, type: 'hat', emoji: '🧢' },
+            { id: 'hat-crown', name: '皇冠', price: 50, type: 'hat', emoji: '👑' },
+            { id: 'hat-grad', name: '學士帽', price: 30, type: 'hat', emoji: '🎓' },
+            { id: 'hat-party', name: '派對帽', price: 15, type: 'hat', emoji: '🥳' },
+            { id: 'hat-cowboy', name: '牛仔帽', price: 40, type: 'hat', emoji: '🤠' },
+            { id: 'hat-magic', name: '魔法帽', price: 80, type: 'hat', emoji: '🧙' }
+        ];
+
         const bopomofoParts = { consonants: ['ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ', 'ㄍ', 'ㄎ', 'ㄏ', 'ㄐ', 'ㄑ', 'ㄒ', 'ㄓ', 'ㄔ', 'ㄕ', 'ㄖ', 'ㄗ', 'ㄘ', 'ㄙ'], medials: ['ㄧ', 'ㄨ', 'ㄩ'], finals: ['ㄚ', 'ㄛ', 'ㄜ', 'ㄝ', 'ㄞ', 'ㄟ', 'ㄠ', 'ㄡ', 'ㄢ', 'ㄣ', 'ㄤ', 'ㄥ', 'ㄦ'], tones: ['ˊ', 'ˇ', 'ˋ', '˙'] };
         const topSideConsonants = ['ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ', 'ㄍ', 'ㄎ', 'ㄏ']; const specialStackConsonants = ['ㄐ', 'ㄑ', 'ㄒ']; const allVowelsForButtons = [...new Set([...bopomofoParts.medials, ...bopomofoParts.finals])];
 
         document.addEventListener('DOMContentLoaded', () => {
             const screens = { start: document.getElementById('start-screen'), levelSelect: document.getElementById('level-select-screen'), game: document.getElementById('game-screen'), levelEnd: document.getElementById('level-end-screen'), levelReview: document.getElementById('level-review-screen'), achievements: document.getElementById('achievements-screen'), parentDashboard: document.getElementById('parent-dashboard') };
-            const interactionArea = document.getElementById('interaction-area'); const livesDisplay = document.getElementById('lives-display'); const progressBarInner = document.getElementById('progress-bar-inner'); const questionImage = document.getElementById('question-image'); const questionImageFallback = document.getElementById('question-image-fallback'); const charDisplay = document.getElementById('char-display'); const bopomofoAnswer = document.getElementById('bopomofo-answer'); const feedbackMessage = document.getElementById('feedback-message'); const answerHintCard = document.getElementById('answer-hint-card'); const levelSelectContainer = document.getElementById('level-buttons-container'); const resetButton = document.getElementById('reset-progress-btn'); const reviewBtn = document.getElementById('review-btn'); const reviewContainer = document.getElementById('review-items-container'); const muteBtn = document.getElementById('mute-btn'); const fullscreenBtn = document.getElementById('fullscreen-btn'); const timerDisplay = document.getElementById('timer-display'); const timeLeftSpan = document.getElementById('time-left');
-            const comboDisplay = document.getElementById('combo-display'); const speechBtn = document.getElementById('speech-btn'); const hintBtn = document.getElementById('hint-btn'); const achievementsBtn = document.getElementById('achievements-btn'); const backToStartBtn = document.getElementById('back-to-start-btn'); const achievementsContainer = document.getElementById('achievements-container');
-            let gameState = { unlockedLevels: 1, hearts: {}, achievements: [] };
-            let bopomofoStats = JSON.parse(localStorage.getItem('bopomofoStats') || '{}');
+            const interactionArea = document.getElementById('interaction-area'); const livesDisplay = document.getElementById('lives-display'); const progressBarInner = document.getElementById('progress-bar-inner'); const questionImage = document.getElementById('question-image'); const questionImageFallback = document.getElementById('question-image-fallback'); const charDisplay = document.getElementById('char-display'); const bopomofoAnswer = document.getElementById('bopomofo-answer'); const feedbackMessage = document.getElementById('feedback-message'); const answerHintCard = document.getElementById('answer-hint-card'); const levelSelectContainer = document.getElementById('level-buttons-container'); const resetButton = document.getElementById('reset-progress-btn'); const reviewBtn = document.getElementById('review-btn'); const reviewContainer = document.getElementById('review-items-container'); const muteBtn = document.getElementById('mute-btn'); const timerDisplay = document.getElementById('timer-display'); const timeLeftSpan = document.getElementById('time-left');
+
+            // --- 補齊缺失的 DOM 參考 ---
+            const achievementsBtn = document.getElementById('achievements-btn');
+            const backToStartBtn = document.getElementById('back-to-start-btn');
+            const hintBtn = document.getElementById('hint-btn');
+            const speechBtn = document.getElementById('speech-btn');
+            const comboDisplay = document.getElementById('combo-display');
+            const achievementsContainer = document.getElementById('achievements-container');
+
+            // 異步加載所有數據並更新 UI (修復 Scope 問題)
+            async function loadAllData() {
+                gameState = await window.storage.get('settings', 'gameState') || { unlockedLevels: 1, hearts: {}, achievements: [], coins: 0, equipped: {} };
+                if (gameState.coins === undefined) gameState.coins = 0;
+                if (!gameState.equipped) gameState.equipped = {};
+
+                customPool = await window.storage.get('customPool', 'main') || [];
+                bopomofoStats = await window.storage.get('stats', 'main') || {};
+
+                // Achievements 2.0: Login Streak Tracking
+                const today = new Date().toLocaleDateString();
+                if (bopomofoStats.lastLoginDate !== today) {
+                    if (bopomofoStats.lastLoginDate) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        if (bopomofoStats.lastLoginDate === yesterday.toLocaleDateString()) {
+                            bopomofoStats.loginStreak = (bopomofoStats.loginStreak || 0) + 1;
+                        } else {
+                            bopomofoStats.loginStreak = 1;
+                        }
+                    } else {
+                        bopomofoStats.loginStreak = 1;
+                    }
+                    bopomofoStats.lastLoginDate = today;
+                    await window.storage.set('stats', 'main', bopomofoStats);
+                }
+
+                updateLevelSelectScreen();
+                renderAchievements();
+                renderCustomPoolList();
+                updateCoinDisplay();
+                updateMascotAppearance();
+                handleImport();
+
+            }
+
+            storageReady.then(loadAllData);
             let currentLevelIndex = 0, lives = 3, currentQuestions = [], currentQuestionIndex = 0, correctAnswersInLevel = 0, userAnswer = '', isChecking = false, activeScreen = 'start', levelResults = [], isMuted = false;
             let audioContext, bgmInterval, countdownInterval, timeRemaining;
             let confirmCallback = null;
+
+            // --- 吉祥物控制邏輯 (v3.2.0) ---
+            const mascot = {
+                container: document.getElementById('mascot-container'),
+                bubble: document.getElementById('mascot-bubble'),
+                say: function (text, duration = 3000) {
+                    this.bubble.textContent = text;
+                    this.bubble.classList.add('show');
+                    if (this._timer) clearTimeout(this._timer);
+                    this._timer = setTimeout(() => this.bubble.classList.remove('show'), duration);
+                },
+                jump: function () {
+                    this.container.classList.remove('mascot-idle');
+                    this.container.classList.add('mascot-bounce');
+                    setTimeout(() => {
+                        this.container.classList.remove('mascot-bounce');
+                        this.container.classList.add('mascot-idle');
+                    }, 500);
+                },
+                react: function (type) {
+                    if (type === 'correct') {
+                        const greets = ['你真棒！', '太厲害了！', '好聰明喔！', '正確！'];
+                        this.say(greets[Math.floor(Math.random() * greets.length)]);
+                        this.jump();
+                    } else if (type === 'wrong') {
+                        this.say('沒關係，再試一次！', 2000);
+                    } else if (type === 'hint') {
+                        this.say('提示在這裡喔！');
+                    }
+                }
+            };
+            window.mascot = mascot;
 
             function showConfirm(title, text, callback) {
                 document.getElementById('confirm-title').textContent = title;
@@ -1784,8 +2193,8 @@
             const TIME_ADD_PER_QUESTION = 15; // 困難模式下每題增加 15 秒
 
             // --- 家長模式核心邏輯 ---
-            function saveCustomPool() {
-                localStorage.setItem('bopomofoCustomPool', JSON.stringify(customPool));
+            async function saveCustomPool() {
+                await window.storage.set('customPool', 'main', customPool);
                 renderCustomPoolList();
             }
 
@@ -1849,14 +2258,16 @@
             async function uploadCustomPoolToCloud() {
                 if (customPool.length === 0) return alert("題庫是空的喔！");
                 const poolName = prompt("請為這個題庫取個好聽的名字（例如：動植物進階）：") || "未命名題庫";
+                const shareCode = Math.floor(100000 + Math.random() * 900000).toString();
+
                 try {
                     const btn = document.getElementById('upload-cloud-btn'); btn.textContent = "上架中.."; btn.disabled = true;
-                    await window.fbDB.collection("market").add({
+                    await window.fbDB.collection("market").doc(shareCode).set({
                         name: poolName,
                         questions: customPool,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    alert("🎉 上架成功！全台灣家長都能看見囉！");
+                    showConfirm("🎉 上架成功！", `分享代碼為：【${shareCode}】\n您的親友現在可以在市集輸入這 6 位數直接獲取。`, null);
                 } catch (e) { alert("上架失敗..."); }
                 finally { const btn = document.getElementById('upload-cloud-btn'); btn.textContent = "☁️ 上架雲端"; btn.disabled = false; }
             }
@@ -1991,6 +2402,8 @@
 
             function renderAchievements() {
                 achievementsContainer.innerHTML = '';
+
+                // 1. 關卡成就 (Level Achievements)
                 gameLevels.forEach(level => {
                     const isUnlocked = gameState.achievements && gameState.achievements.includes(level.name);
                     const badge = document.createElement('div');
@@ -1998,10 +2411,28 @@
                     badge.innerHTML = `<div class="icon">${level.icon}</div><div class="name">${level.name}通關</div>`;
                     achievementsContainer.appendChild(badge);
                 });
+
+                // 2. 特殊成就 2.0 (Special Achievements)
+                const specialAchievements = [
+                    { id: 'streak3', name: '連登3天', icon: '🔥', condition: () => (bopomofoStats.loginStreak || 0) >= 3 },
+                    { id: 'streak10', name: '連登10天', icon: '📅', condition: () => (bopomofoStats.loginStreak || 0) >= 10 },
+                    { id: 'correct100', name: '答對100題', icon: '💯', condition: () => (bopomofoStats.totalCorrect || 0) >= 100 },
+                    { id: 'correct500', name: '知識達人', icon: '🏆', condition: () => (bopomofoStats.totalCorrect || 0) >= 500 }
+                ];
+
+                specialAchievements.forEach(sa => {
+                    const isUnlocked = sa.condition();
+                    const badge = document.createElement('div');
+                    badge.className = `achievement-badge ${isUnlocked ? 'unlocked' : ''}`;
+                    badge.innerHTML = `<div class="icon">${sa.icon}</div><div class="name">${sa.name}</div>`;
+                    achievementsContainer.appendChild(badge);
+                });
             }
 
-            function saveGameState() { localStorage.setItem('bopomofoPartyState', JSON.stringify(gameState)); }
-            function loadGameState() { const savedState = localStorage.getItem('bopomofoPartyState'); if (savedState) { gameState = JSON.parse(savedState); } }
+            async function saveGameState() {
+                await window.storage.set('settings', 'gameState', gameState);
+            }
+            function loadGameState() { } // 已由 loadAllData 取代
             function initAudio() { if (!audioContext) { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } }
             function playNote(frequency, type = 'sine', duration = 0.1) { if (isMuted || !audioContext) return; try { const o = audioContext.createOscillator(), g = audioContext.createGain(); o.connect(g); g.connect(audioContext.destination); o.type = type; o.frequency.setValueAtTime(frequency, audioContext.currentTime); g.gain.setValueAtTime(0.2, audioContext.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration); o.start(); o.stop(audioContext.currentTime + duration); } catch (e) { } }
             function playSound(type) {
@@ -2032,7 +2463,108 @@
                     bgmInterval = setInterval(() => { playNote(notes[noteIndex % notes.length], 'sine', 0.3); noteIndex++; }, 500);
                 });
             }
-            function showScreen(screenId) { screens[activeScreen].classList.remove('active'); activeScreen = screenId; screens[activeScreen].classList.add('active'); }
+
+            function updateCoinDisplay() {
+                const count = gameState.coins || 0;
+                const shopDisplay = document.getElementById('shop-coin-count');
+                const gameDisplay = document.getElementById('game-coin-count');
+                if (shopDisplay) shopDisplay.textContent = count;
+                if (gameDisplay) gameDisplay.textContent = count;
+            }
+
+            function renderShop() {
+                updateCoinDisplay();
+                const grid = document.getElementById('shop-grid');
+                grid.innerHTML = '';
+                const ownedHats = gameState.inventory?.hats || [];
+                const equippedHat = gameState.equipped?.hat || null;
+
+                shopItems.forEach(item => {
+                    const isOwned = ownedHats.includes(item.id);
+                    const isEquipped = equippedHat === item.id;
+                    const btnHtml = isEquipped
+                        ? `<button class="btn" disabled style="background:#9ca3af; margin:0; padding:10px; width:100%; font-size:16px;">✅ 已裝備</button>`
+                        : isOwned
+                            ? `<button class="btn" onclick="equipItem('${item.id}', '${item.type}')" style="background:#3b82f6; margin:0; padding:10px; width:100%; font-size:16px;">裝備</button>`
+                            : `<button class="btn" onclick="buyItem('${item.id}')" style="background:#10b981; margin:0; padding:10px; width:100%; font-size:16px;">💰 ${item.price}</button>`;
+
+                    grid.innerHTML += `
+                        <div style="background: white; border-radius: 20px; padding: 20px; text-align: center; box-shadow: var(--clay-shadow-btn); display: flex; flex-direction: column; justify-content: space-between; align-items:center;">
+                            <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));">${item.emoji}</div>
+                            <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #475569;">${item.name}</div>
+                            ${btnHtml}
+                        </div>
+                    `;
+                });
+            }
+
+            window.buyItem = (itemId) => {
+                const item = shopItems.find(i => i.id === itemId);
+                if (!item) return;
+                if ((gameState.coins || 0) >= item.price) {
+                    playSound('correct');
+                    gameState.coins -= item.price;
+                    if (!gameState.inventory) gameState.inventory = { hats: [], colors: [] };
+                    if (!gameState.inventory.hats) gameState.inventory.hats = [];
+                    gameState.inventory.hats.push(itemId);
+                    saveGameState();
+                    renderShop();
+                    mascot.say(`成功購買 ${item.name}！快去裝備看看吧！`, 4000);
+                } else {
+                    playSound('wrong');
+                    mascot.say(`金幣不夠喔！快去破關賺金幣吧！`, 4000);
+                }
+            };
+
+            window.equipItem = (itemId, type) => {
+                playSound('touch');
+                if (!gameState.equipped) gameState.equipped = {};
+                if (gameState.equipped[type] === itemId) {
+                    gameState.equipped[type] = null; // 卸下
+                } else {
+                    gameState.equipped[type] = itemId; // 裝備
+                }
+                saveGameState();
+                renderShop();
+                mascot.say(`換裝完成！我現在看起來很酷對吧！`, 3000);
+                updateMascotAppearance();
+            };
+
+            window.updateMascotAppearance = () => {
+                const existingHats = mascot.container.querySelectorAll('.equipped-hat');
+                existingHats.forEach(h => h.remove());
+
+                if (gameState.equipped?.hat) {
+                    const hatItem = shopItems.find(i => i.id === gameState.equipped.hat);
+                    if (hatItem) {
+                        const hatEl = document.createElement('div');
+                        hatEl.className = 'equipped-hat';
+                        hatEl.textContent = hatItem.emoji;
+                        hatEl.style.position = 'absolute';
+                        hatEl.style.top = '-35px';
+                        hatEl.style.left = '45%'; // 稍微向左偏一點配合外星人角度
+                        hatEl.style.transform = 'translateX(-50%) rotate(-10deg)';
+                        hatEl.style.fontSize = '85px';
+                        hatEl.style.zIndex = '5';
+                        hatEl.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        hatEl.style.filter = 'drop-shadow(0 5px 5px rgba(0,0,0,0.3))';
+
+                        mascot.container.appendChild(hatEl);
+                    }
+                }
+            };
+
+            function showScreen(screenId) {
+                Object.values(screens).forEach(s => {
+                    if (s) {
+                        s.classList.remove('active');
+                    }
+                });
+
+                // 動態取得目標螢幕元件 (如果沒有存在 cache 中)
+                const targetScreen = screens[screenId] || document.getElementById(`${screenId}-screen`);
+                if (targetScreen) targetScreen.classList.add('active');
+            }
             function triggerConfetti() {
                 const shapes = ['confetti-round', 'confetti-star', 'confetti-heart', 'confetti-square'];
                 const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FF922B', '#CC5DE8', '#F06595', '#20C997'];
@@ -2080,6 +2612,7 @@
 
                     feedbackMessage.textContent = '答對了！太棒了！'; feedbackMessage.className = 'feedback-correct';
                     interactionArea.classList.add('correct'); triggerConfetti();
+                    mascot.react('correct');
                     if (navigator.vibrate) navigator.vibrate(50); // 震動回饋
                     progressBarInner.style.width = `${(correctAnswersInLevel / currentQuestions.length) * 100}%`;
 
@@ -2095,6 +2628,7 @@
                     updateStats(currentQuestions[currentQuestionIndex].bopomofo, true);
                 } else {
                     currentCombo = 0; comboDisplay.classList.remove('active'); // Reset Combo
+                    mascot.react('wrong');
                     playSound('wrong'); lives--; updateLivesDisplay();
                     updateStats(currentQuestions[currentQuestionIndex].bopomofo, false);
                     if (navigator.vibrate) navigator.vibrate([200, 100, 200]); // 震動回饋
@@ -2139,6 +2673,35 @@
                     customBtn.onclick = () => { playSound('touch'); startGame(-1); }; // -1 代表自訂模式
                     levelSelectContainer.appendChild(customBtn);
                 }
+
+                // --- 【補救教學】終極挑戰 ---
+                const weakSpots = Object.entries(bopomofoStats)
+                    .filter(([k, v]) => v.total >= 3 && (v.correct / v.total) < 0.7)
+                    .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total))
+                    .slice(0, 5)
+                    .map(entry => entry[0]);
+
+                if (weakSpots.length >= 2) {
+                    const challengeBtn = document.createElement('button');
+                    challengeBtn.className = 'btn level-btn challenge-zone';
+                    challengeBtn.style.background = 'linear-gradient(135deg, #EF4444, #F97316)';
+                    challengeBtn.innerHTML = `<div class="level-icon">🔥</div><div>終極挑戰</div><div class="hearts">${weakSpots.length} 個重難點</div>`;
+                    challengeBtn.onclick = () => {
+                        playSound('touch');
+                        const allQs = gameLevels.flatMap(l => l.questions);
+                        const challengeQs = weakSpots.map(symbol => {
+                            return allQs.find(q => q.bopomofo.includes(symbol)) || allQs[0];
+                        }).slice(0, 5);
+                        currentQuestions = challengeQs;
+                        currentLevelIndex = 888;
+                        isEndlessMode = false; lives = 3; currentQuestionIndex = 0; correctAnswersInLevel = 0;
+                        levelResults = []; updateLivesDisplay(); progressBarInner.style.width = '0%';
+                        document.getElementById('game-screen').className = 'screen active theme-rainbow';
+                        showScreen('game'); loadQuestion();
+                        mascot.say("我們來攻克這些難題吧！");
+                    };
+                    levelSelectContainer.appendChild(challengeBtn);
+                }
             }
 
             function populateReviewScreen() {
@@ -2164,8 +2727,12 @@
                 const leaderboardList = endScreen.querySelector('#leaderboard-list');
 
                 if (isEndlessMode || isSuccess) {
+                    // 金幣發放：100 分 = 1 枚金幣
+                    const coinsEarned = Math.floor(currentScore / 100);
+                    gameState.coins = (gameState.coins || 0) + coinsEarned;
+
                     scoreDisplay.style.display = 'block';
-                    scoreDisplay.textContent = `得分：${currentScore}`;
+                    scoreDisplay.textContent = `得分：${currentScore} (獲得 💰 ${coinsEarned} 金幣)`;
 
                     // 紀錄排行榜
                     let highScores = JSON.parse(localStorage.getItem('bopomofoHighScores') || '[]');
@@ -2211,6 +2778,20 @@
                 }
                 heartsDisplay.forEach((heart, i) => { heart.classList.remove('active'); heart.textContent = '🤍'; if (i < heartsEarned) { setTimeout(() => { heart.classList.add('active'); heart.textContent = '❤️'; }, i * 300); } });
                 saveGameState(); updateLevelSelectScreen(); showScreen('levelEnd');
+
+                // 通關成功時播放家長鼓勵語音
+                if (isSuccess) {
+                    window.storage.get('media', 'parentEncouagement').then(blob => {
+                        if (blob) {
+                            setTimeout(() => {
+                                const url = URL.createObjectURL(blob);
+                                const audio = new Audio(url);
+                                audio.play();
+                                mascot.say("爸爸媽媽有話跟你說喔！");
+                            }, 1500);
+                        }
+                    });
+                }
             }
 
             function startTimer() {
@@ -2318,6 +2899,8 @@
             document.getElementById('start-game-btn').addEventListener('click', () => { initAudio(); toggleBgm(); updateLevelSelectScreen(); showScreen('levelSelect'); });
 
             achievementsBtn.onclick = () => { playSound('touch'); renderAchievements(); showScreen('achievements'); };
+            document.getElementById('shop-btn').onclick = () => { playSound('touch'); renderShop(); showScreen('shop'); };
+            document.getElementById('close-shop-btn').onclick = () => { playSound('touch'); showScreen('start'); };
             backToStartBtn.onclick = () => { playSound('touch'); showScreen('start'); };
             document.getElementById('endless-mode-btn').onclick = () => { playSound('touch'); startEndlessMode(); };
 
@@ -2375,11 +2958,13 @@
                 });
             });
             resetButton.addEventListener('click', () => {
-                showConfirm('⚠️ 警告', '確定要清除所有遊戲進度與成就嗎？此操作不可還原喔！', () => {
-                    gameState = { unlockedLevels: 1, hearts: {}, achievements: [] };
-                    saveGameState();
-                    updateLevelSelectScreen();
-                    renderAchievements();
+                showParentLock(() => {
+                    showConfirm('⚠️ 警告', '確定要清除所有遊戲進度與成就嗎？此操作不可還原喔！', () => {
+                        gameState = { unlockedLevels: 1, hearts: {}, achievements: [] };
+                        saveGameState();
+                        updateLevelSelectScreen();
+                        renderAchievements();
+                    });
                 });
             });
             muteBtn.addEventListener('click', () => { isMuted = !isMuted; muteBtn.textContent = isMuted ? '🔇' : '🔊'; toggleBgm(); });
@@ -2389,8 +2974,10 @@
 
             // Parent Dashboard Events
             document.getElementById('open-parent-btn').onclick = () => {
-                renderCustomPoolList();
-                showScreen('parentDashboard');
+                showParentLock(() => {
+                    renderCustomPoolList();
+                    showScreen('parentDashboard');
+                });
             };
             document.getElementById('close-parent-btn').onclick = () => showScreen('start');
             document.getElementById('add-custom-btn').onclick = () => {
@@ -2432,31 +3019,197 @@
                 });
             }
 
-            fullscreenBtn.addEventListener('click', () => {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch((err) => {
-                        console.error(`Error attempting to enable fullscreen: ${err.message}`);
-                    });
-                } else {
-                    document.exitFullscreen();
+
+
+            // --- 【v3.3.0】家長鎖與護眼機制核心邏輯 ---
+            let totalPlayTime = 0; // 累計遊玩秒數
+            let healthAlertActive = false;
+            const HEALTH_LIMIT = 20 * 60; // 20 分鐘
+
+            function showParentLock(callback) {
+                const overlay = document.getElementById('parent-lock-overlay');
+                const qDiv = document.getElementById('lock-question');
+                const input = document.getElementById('lock-input');
+                const a = Math.floor(Math.random() * 20) + 1;
+                const b = Math.floor(Math.random() * 20) + 1;
+                const correctAnswer = a + b;
+
+                qDiv.textContent = `${a} + ${b} = ?`;
+                input.value = '';
+                overlay.style.display = 'flex';
+                input.focus();
+
+                const confirmBtn = document.getElementById('lock-confirm-btn');
+                const cancelBtn = document.getElementById('lock-cancel-btn');
+
+                const cleanup = () => {
+                    overlay.style.display = 'none';
+                    confirmBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                };
+
+                confirmBtn.onclick = () => {
+                    if (parseInt(input.value) === correctAnswer) {
+                        cleanup();
+                        callback();
+                    } else {
+                        mascot.say("哎呀，算錯囉！");
+                        input.value = '';
+                        input.focus();
+                    }
+                };
+
+                cancelBtn.onclick = cleanup;
+            }
+
+            // 護眼計時器
+            setInterval(() => {
+                if (healthAlertActive) return;
+                totalPlayTime++;
+                if (totalPlayTime >= HEALTH_LIMIT) {
+                    triggerHealthAlert();
                 }
-            });
+            }, 1000);
+
+            function triggerHealthAlert() {
+                healthAlertActive = true;
+                const overlay = document.getElementById('health-alert-overlay');
+                const timerDiv = document.getElementById('health-timer');
+                overlay.style.display = 'flex';
+                let remaining = 20;
+
+                const itv = setInterval(() => {
+                    remaining--;
+                    timerDiv.textContent = `剩餘時間：${remaining} 秒`;
+                    if (remaining <= 0) {
+                        clearInterval(itv);
+                        overlay.style.display = 'none';
+                        totalPlayTime = 0; // 重置計時
+                        healthAlertActive = false;
+                        mascot.say("休息完畢，我們繼續吧！");
+                    }
+                }, 1000);
+            }
+
+            // 報告匯出功能
+            document.getElementById('export-report-btn').onclick = () => {
+                const canvas = document.getElementById('radar-canvas');
+                if (!canvas) return;
+
+                // 建立一個離屏畫布來繪製完整報告
+                const reportCanvas = document.createElement('canvas');
+                reportCanvas.width = 500;
+                reportCanvas.height = 700;
+                const ctx = reportCanvas.getContext('2d');
+
+                // 背景
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, reportCanvas.width, reportCanvas.height);
+
+                // 標題
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 28px sans-serif';
+                ctx.fillText('ㄅㄆㄇ 注音大挑戰 - 學習報告', 50, 60);
+
+                // 畫上雷達圖
+                ctx.drawImage(canvas, 100, 100, 300, 300);
+
+                // 統計資訊
+                ctx.font = '20px sans-serif';
+                ctx.fillText(`生成日期：${new Date().toLocaleDateString()}`, 50, 450);
+
+                let y = 500;
+                ctx.fillText('弱點符號分析：', 50, y);
+                y += 35;
+                const weakSpots = Object.entries(bopomofoStats)
+                    .filter(([k, v]) => v.total >= 3 && (v.correct / v.total) < 0.7)
+                    .slice(0, 5);
+
+                if (weakSpots.length === 0) {
+                    ctx.fillStyle = '#6BCB77';
+                    ctx.fillText('太棒了！目前沒有明顯弱點。', 70, y);
+                } else {
+                    ctx.fillStyle = '#EF4444';
+                    weakSpots.forEach(([k, v]) => {
+                        ctx.fillText(`• ${k} (正確率: ${Math.round((v.correct / v.total) * 100)}%)`, 70, y);
+                        y += 30;
+                    });
+                }
+
+                // 轉為圖片下載
+                const link = document.createElement('a');
+                link.download = `Zhuyin_Report_${new Date().getTime()}.png`;
+                link.href = reportCanvas.toDataURL('image/png');
+                link.click();
+                mascot.say("報告已匯出囉！");
+            };
 
             // --- AI 語音辨識與分析邏輯 (v3.0) ---
-            function updateStats(bopomofo, isCorrect) {
+            // --- 家長錄音功能邏輯 (v3.2.0) ---
+            let mediaRecorder, audioChunks = [];
+            const recordBtn = document.getElementById('record-btn');
+            const playRecordBtn = document.getElementById('play-record-btn');
+
+            if (recordBtn) {
+                recordBtn.onclick = async () => {
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                        recordBtn.textContent = '🔴 開始錄音';
+                        recordBtn.style.backgroundColor = '#EF4444';
+                    } else {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            mediaRecorder = new MediaRecorder(stream);
+                            audioChunks = [];
+                            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                            mediaRecorder.onstop = async () => {
+                                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                                await window.storage.set('media', 'parentEncouagement', audioBlob);
+                                playRecordBtn.style.display = 'block';
+                                mascot.say("錄音存好囉！");
+                            };
+                            mediaRecorder.start();
+                            recordBtn.textContent = '⏹️ 停止錄音';
+                            recordBtn.style.backgroundColor = '#64748b';
+                        } catch (e) { alert("無法取得麥克風權限"); }
+                    }
+                };
+            }
+
+            if (playRecordBtn) {
+                playRecordBtn.onclick = async () => {
+                    const blob = await window.storage.get('media', 'parentEncouagement');
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        new Audio(url).play();
+                    }
+                };
+
+                // 初始化檢查是否有現成錄音
+                window.storage.get('media', 'parentEncouagement').then(blob => {
+                    if (blob) playRecordBtn.style.display = 'block';
+                });
+            }
+
+            async function updateStats(bopomofo, isCorrect) {
                 const parts = parseBopomofo(bopomofo);
                 const keys = [];
                 if (parts.c) keys.push(parts.c);
                 if (parts.m) keys.push(parts.m);
                 if (parts.f) keys.push(parts.f);
-                if (parts.t) keys.push(parts.t || 'ˉ'); // 預設一聲
+                if (parts.t) keys.push(parts.t || 'ˉ');
 
                 keys.forEach(key => {
                     if (!bopomofoStats[key]) bopomofoStats[key] = { correct: 0, total: 0 };
                     bopomofoStats[key].total++;
                     if (isCorrect) bopomofoStats[key].correct++;
                 });
-                localStorage.setItem('bopomofoStats', JSON.stringify(bopomofoStats));
+
+                if (isCorrect) {
+                    bopomofoStats.totalCorrect = (bopomofoStats.totalCorrect || 0) + 1;
+                }
+
+                await window.storage.set('stats', 'main', bopomofoStats);
             }
 
             function drawRadarChart() {
@@ -2588,7 +3341,17 @@
                 setTimeout(drawRadarChart, 100);
             };
 
-            loadGameState();
+            document.getElementById('import-code-btn').onclick = async () => {
+                const codeInput = document.getElementById('market-code-input');
+                const code = codeInput.value.trim();
+                if (!code || code.length !== 6) return alert("請輸入 6 位數正確代碼");
+                const btn = document.getElementById('import-code-btn');
+                btn.textContent = "..."; btn.disabled = true;
+                await window.importCloudPool(code);
+                btn.textContent = "獲取"; btn.disabled = false;
+                codeInput.value = '';
+            };
+
             createKeyboard();
         });
     </script>
