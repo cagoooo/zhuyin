@@ -1469,6 +1469,23 @@
             background-color: #ffecd1;
         }
 
+        /* --- 新增關卡主題 --- */
+        .theme-nature {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+        }
+
+        .theme-insect {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        }
+
+        .theme-action {
+            background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
+        }
+
+        .theme-daily {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+        }
+
         /* --- Parent Dashboard Styles --- */
         .parent-btn {
             position: absolute;
@@ -2089,8 +2106,21 @@
 
         // --- 【核心升級】擴充題庫 ---
         const gameLevels = [
-            { name: "水果", icon: "🍎", questions: [{ char: '蘋', bopomofo: 'ㄆㄧㄥˊ', image: './assets/images/apple.png' }, { char: '蕉', bopomofo: 'ㄐㄧㄠ', image: './assets/images/banana.png' }, { char: '瓜', bopomofo: 'ㄍㄨㄚ', image: './assets/images/watermelon.png' }, { char: '莓', bopomofo: 'ㄇㄟˊ', image: './assets/images/strawberry.png' }, { char: '桃', bopomofo: 'ㄊㄠˊ', image: './assets/images/peach.png' }, { char: '萄', bopomofo: 'ㄊㄠˊ', image: './assets/images/grapes.png' }, { char: '橘', bopomofo: 'ㄐㄩˊ', emoji: '🍊' }, { char: '梨', bopomofo: 'ㄌㄧˊ', image: './assets/images/pear.png' }, { char: '檬', bopomofo: 'ㄇㄥˊ', emoji: '🍋' }] },
-            { name: "動物", icon: "🐶", questions: [{ char: '貓', bopomofo: 'ㄇㄠ', image: './assets/images/cat.png' }, { char: '狗', bopomofo: 'ㄍㄡˇ', image: './assets/images/dog.png' }, { char: '兔', bopomofo: 'ㄊㄨˋ', image: './assets/images/rabbit.png' }, { char: '魚', bopomofo: 'ㄩˊ', image: './assets/images/fish.png' }, { char: '熊', bopomofo: 'ㄒㄩㄥˊ', image: './assets/images/teddy-bear.png' }, { char: '虎', bopomofo: 'ㄏㄨˇ', emoji: '🐯' }, { char: '獅', bopomofo: 'ㄕ', image: './assets/images/lion.png' }, { char: '象', bopomofo: 'ㄒㄧㄤˋ', image: './assets/images/elephant.png' }, { char: '猴', bopomofo: 'ㄏㄡˊ', emoji: '🐒' }, { char: '鳥', bopomofo: 'ㄋㄧㄠˇ', image: './assets/images/bird.png' }] },
+            // --- 原有關卡擴充 ---
+            {
+                name: "水果", icon: "🍎", questions: [
+                    { char: '蘋', bopomofo: 'ㄆㄧㄥˊ', image: './assets/images/apple.png' }, { char: '蕉', bopomofo: 'ㄐㄧㄠ', image: './assets/images/banana.png' }, { char: '瓜', bopomofo: 'ㄍㄨㄚ', image: './assets/images/watermelon.png' }, { char: '莓', bopomofo: 'ㄇㄟˊ', image: './assets/images/strawberry.png' }, { char: '桃', bopomofo: 'ㄊㄠˊ', image: './assets/images/peach.png' }, { char: '萄', bopomofo: 'ㄊㄠˊ', image: './assets/images/grapes.png' }, { char: '橘', bopomofo: 'ㄐㄩˊ', emoji: '🍊' }, { char: '梨', bopomofo: 'ㄌㄧˊ', image: './assets/images/pear.png' }, { char: '檬', bopomofo: 'ㄇㄥˊ', emoji: '🍋' },
+                    // 新增
+                    { char: '鳳', bopomofo: 'ㄈㄥˋ', emoji: '🍍' }, { char: '芭', bopomofo: 'ㄅㄚ', emoji: '🍐' }, { char: '芒', bopomofo: 'ㄇㄤˊ', emoji: '🥭' }
+                ]
+            },
+            {
+                name: "動物", icon: "🐶", questions: [
+                    { char: '貓', bopomofo: 'ㄇㄠ', image: './assets/images/cat.png' }, { char: '狗', bopomofo: 'ㄍㄡˇ', image: './assets/images/dog.png' }, { char: '兔', bopomofo: 'ㄊㄨˋ', image: './assets/images/rabbit.png' }, { char: '魚', bopomofo: 'ㄩˊ', image: './assets/images/fish.png' }, { char: '熊', bopomofo: 'ㄒㄩㄥˊ', image: './assets/images/teddy-bear.png' }, { char: '虎', bopomofo: 'ㄏㄨˇ', emoji: '🐯' }, { char: '獅', bopomofo: 'ㄕ', image: './assets/images/lion.png' }, { char: '象', bopomofo: 'ㄒㄧㄤˋ', image: './assets/images/elephant.png' }, { char: '猴', bopomofo: 'ㄏㄡˊ', emoji: '🐒' }, { char: '鳥', bopomofo: 'ㄋㄧㄠˇ', image: './assets/images/bird.png' },
+                    // 新增
+                    { char: '牛', bopomofo: 'ㄋㄧㄡˊ', emoji: '🐮' }, { char: '羊', bopomofo: 'ㄧㄤˊ', emoji: '🐑' }, { char: '馬', bopomofo: 'ㄇㄚˇ', emoji: '🐴' }, { char: '豬', bopomofo: 'ㄓㄨ', emoji: '🐷' }, { char: '鴨', bopomofo: 'ㄧㄚ', emoji: '🦆' }
+                ]
+            },
             { name: "交通", icon: "🚗", questions: [{ char: '車', bopomofo: 'ㄔㄜ', image: './assets/images/car.png' }, { char: '船', bopomofo: 'ㄔㄨㄢˊ', emoji: '🚢' }, { char: '機', bopomofo: 'ㄐㄧ', image: './assets/images/airplane.png' }, { char: '火', bopomofo: 'ㄏㄨㄛˇ', image: './assets/images/train.png' }, { char: '單', bopomofo: 'ㄉㄢ', image: './assets/images/bicycle.png' }, { char: '公', bopomofo: 'ㄍㄨㄥ', image: './assets/images/bus.png' }, { char: '卡', bopomofo: 'ㄎㄚˇ', image: './assets/images/truck.png' }] },
             { name: "身體", icon: "✋", questions: [{ char: '頭', bopomofo: 'ㄊㄡˊ', image: './assets/images/head.png' }, { char: '手', bopomofo: 'ㄕㄡˇ', image: './assets/images/hand.png' }, { char: '腳', bopomofo: 'ㄐㄧㄠˇ', emoji: '🦶' }, { char: '眼', bopomofo: 'ㄧㄢˇ', image: './assets/images/visible.png' }, { char: '口', bopomofo: 'ㄎㄡˇ', image: './assets/images/mouth.png' }, { char: '鼻', bopomofo: 'ㄅㄧˊ', emoji: '👃' }, { char: '耳', bopomofo: 'ㄦˇ', emoji: '👂' }] },
             { name: "家人", icon: "👨‍👩‍👧‍👦", questions: [{ char: '爸', bopomofo: 'ㄅㄚˋ', image: './assets/images/father.png' }, { char: '媽', bopomofo: 'ㄇㄚ', image: './assets/images/mother.png' }, { char: '哥', bopomofo: 'ㄍㄜ', image: './assets/images/boy.png' }, { char: '姐', bopomofo: 'ㄐㄧㄝˇ', image: './assets/images/girl.png' }, { char: '弟', bopomofo: 'ㄉㄧˋ', emoji: '👦' }, { char: '妹', bopomofo: 'ㄇㄟˋ', emoji: '👧' }, { char: '爺', bopomofo: 'ㄧㄝˊ', emoji: '👴' }] },
@@ -2098,7 +2128,13 @@
             { name: "顏色", icon: "🎨", questions: [{ char: '紅', bopomofo: 'ㄏㄨㄥˊ', image: './assets/images/red.png' }, { char: '黃', bopomofo: 'ㄏㄨㄤˊ', image: './assets/images/yellow.png' }, { char: '藍', bopomofo: 'ㄌㄢˊ', image: './assets/images/blue.png' }, { char: '綠', bopomofo: 'ㄌㄩˋ', image: './assets/images/green.png' }, { char: '白', bopomofo: 'ㄅㄞˊ', image: './assets/images/white.png' }, { char: '黑', bopomofo: 'ㄏㄟ', image: './assets/images/black.png' }] },
             { name: "天氣", icon: "⛅", questions: [{ char: '晴', bopomofo: 'ㄑㄧㄥˊ', image: './assets/images/sunny.png' }, { char: '雨', bopomofo: 'ㄩˇ', image: './assets/images/rain.png' }, { char: '雲', bopomofo: 'ㄩㄣˊ', emoji: '☁️' }, { char: '雪', bopomofo: 'ㄒㄩㄝˇ', image: './assets/images/snow.png' }, { char: '風', bopomofo: 'ㄈㄥ', image: './assets/images/wind.png' }, { char: '雷', bopomofo: 'ㄌㄟˊ', image: './assets/images/storm.png' }, { char: '虹', bopomofo: 'ㄏㄨㄥˊ', image: './assets/images/rainbow.png' }] },
             { name: "形狀", icon: "🔺", questions: [{ char: '圓', bopomofo: 'ㄩㄢˊ', emoji: '⭕' }, { char: '方', bopomofo: 'ㄈㄤ', image: './assets/images/square.png' }, { char: '角', bopomofo: 'ㄐㄧㄠˇ', image: './assets/images/triangle.png' }, { char: '星', bopomofo: 'ㄒㄧㄥ', image: './assets/images/star.png' }, { char: '心', bopomofo: 'ㄒㄧㄣ', image: './assets/images/heart.png' }] },
-            { name: "食物", icon: "🍔", questions: [{ char: '飯', bopomofo: 'ㄈㄢˋ', image: './assets/images/rice.png' }, { char: '麵', bopomofo: 'ㄇㄧㄢˋ', emoji: '🍜' }, { char: '蛋', bopomofo: 'ㄉㄢˋ', image: './assets/images/egg.png' }, { char: '肉', bopomofo: 'ㄖㄡˋ', emoji: '🥩' }, { char: '菜', bopomofo: 'ㄘㄞˋ', image: './assets/images/vegetable.png' }, { char: '湯', bopomofo: 'ㄊㄤ', emoji: '🥣' }, { char: '糖', bopomofo: 'ㄊㄤˊ', emoji: '🍬' }] }
+            { name: "食物", icon: "🍔", questions: [{ char: '飯', bopomofo: 'ㄈㄢˋ', image: './assets/images/rice.png' }, { char: '麵', bopomofo: 'ㄇㄧㄢˋ', emoji: '🍜' }, { char: '蛋', bopomofo: 'ㄉㄢˋ', image: './assets/images/egg.png' }, { char: '肉', bopomofo: 'ㄖㄡˋ', emoji: '🥩' }, { char: '菜', bopomofo: 'ㄘㄞˋ', image: './assets/images/vegetable.png' }, { char: '湯', bopomofo: 'ㄊㄤ', emoji: '🥣' }, { char: '糖', bopomofo: 'ㄊㄤˊ', emoji: '🍬' }] },
+
+            // --- 全新關卡擴充 ---
+            { name: "自然", icon: "🌳", questions: [{ char: '山', bopomofo: 'ㄕㄢ', emoji: '⛰️' }, { char: '海', bopomofo: 'ㄏㄞˇ', emoji: '🌊' }, { char: '花', bopomofo: 'ㄏㄨㄚ', emoji: '🌸' }, { char: '草', bopomofo: 'ㄘㄠˇ', emoji: '🌿' }, { char: '樹', bopomofo: 'ㄕㄨˋ', emoji: '🌳' }, { char: '石', bopomofo: 'ㄕˊ', emoji: '🪨' }, { char: '星', bopomofo: 'ㄒㄧㄥ', emoji: '⭐' }] },
+            { name: "昆蟲", icon: "🦋", questions: [{ char: '蝶', bopomofo: 'ㄉㄧㄝˊ', emoji: '🦋' }, { char: '蜂', bopomofo: 'ㄈㄥ', emoji: '🐝' }, { char: '蟻', bopomofo: 'ㄧˇ', emoji: '🐜' }, { char: '蚊', bopomofo: 'ㄨㄣˊ', emoji: '🦟' }, { char: '蟲', bopomofo: 'ㄔㄨㄥˊ', emoji: '🐛' }, { char: '蛛', bopomofo: 'ㄓㄨ', emoji: '🕷️' }] },
+            { name: "動作", icon: "🏃", questions: [{ char: '跑', bopomofo: 'ㄆㄠˇ', emoji: '🏃' }, { char: '跳', bopomofo: 'ㄊㄧㄠˋ', emoji: '🦘' }, { char: '走', bopomofo: 'ㄗㄡˇ', emoji: '🚶' }, { char: '飛', bopomofo: 'ㄈㄟ', emoji: '🦅' }, { char: '游', bopomofo: 'ㄧㄡˊ', emoji: '🏊' }, { char: '笑', bopomofo: 'ㄒㄧㄠˋ', emoji: '😄' }, { char: '哭', bopomofo: 'ㄎㄨ', emoji: '😭' }] },
+            { name: "日常", icon: "🏠", questions: [{ char: '床', bopomofo: 'ㄔㄨㄤˊ', emoji: '🛏️' }, { char: '杯', bopomofo: 'ㄅㄟ', emoji: '🥤' }, { char: '碗', bopomofo: 'ㄨㄢˇ', emoji: '🥣' }, { char: '鞋', bopomofo: 'ㄒㄧㄝˊ', emoji: '👟' }, { char: '衣', bopomofo: 'ㄧ', emoji: '👕' }, { char: '褲', bopomofo: 'ㄎㄨˋ', emoji: '👖' }, { char: '鐘', bopomofo: 'ㄓㄨㄥ', emoji: '⏰' }] }
         ];
         const shopItems = [
             { id: 'hat-cap', name: '鴨舌帽', price: 10, type: 'hat', emoji: '🧢' },
@@ -2424,6 +2460,10 @@
                 else if (themeName === '顏色') gameScreen.classList.add('theme-star');
                 else if (themeName === '食物') gameScreen.classList.add('theme-food');
                 else if (themeName === '水果') gameScreen.classList.add('theme-fruit');
+                else if (themeName === '自然') gameScreen.classList.add('theme-nature');
+                else if (themeName === '昆蟲') gameScreen.classList.add('theme-insect');
+                else if (themeName === '動作') gameScreen.classList.add('theme-action');
+                else if (themeName === '日常') gameScreen.classList.add('theme-daily');
                 else gameScreen.classList.add('theme-warm');
             }
 
