@@ -522,19 +522,37 @@
 
         .progress-bar {
             flex-grow: 1;
-            height: 15px;
-            background: #e8e5d9;
-            border-radius: 10px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
             overflow: hidden;
             margin: 0 15px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            position: relative;
         }
 
         .progress-bar-inner {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-color), #FBBF24);
-            transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            border-radius: inherit;
+            background: linear-gradient(180deg, #60A5FA 0%, #3B82F6 100%);
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            /* 帶有一點超調的彈性動畫 */
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        /* 進度條高光反射 */
+        .progress-bar-inner::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            height: 6px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.1));
+            border-radius: 4px;
         }
 
         .top-buttons {
@@ -1752,7 +1770,10 @@
                 <div id="coins-display" class="coins"
                     style="font-size: 20px; font-weight: 900; background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px; color: #F59E0B; margin-left: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     💰 <span id="game-coin-count">0</span></div>
-                <div id="timer-display" style="margin-left: 10px;">⏱️ <span id="time-left"></span></div>
+                <div id="timer-display" class="coins"
+                    style="font-size: 20px; font-weight: 900; background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px; color: #EF4444; margin-left: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 2px solid #FCA5A5;">
+                    ⏱️ <span id="time-left"></span>
+                </div>
                 <div class="progress-bar">
                     <div id="progress-bar-inner"></div>
                 </div>
