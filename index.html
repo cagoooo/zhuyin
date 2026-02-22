@@ -2433,7 +2433,17 @@
                 await window.storage.set('settings', 'gameState', gameState);
             }
             function loadGameState() { } // 已由 loadAllData 取代
-            function initAudio() { if (!audioContext) { audioContext = new (window.AudioContext || window.webkitAudioContext)(); } }
+            function initAudio() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                // 解除 iOS/Safari 及各類行動裝置的 TTS 語音限制
+                if ('speechSynthesis' in window) {
+                    const silentUtterance = new SpeechSynthesisUtterance('');
+                    silentUtterance.volume = 0;
+                    window.speechSynthesis.speak(silentUtterance);
+                }
+            }
             function playNote(frequency, type = 'sine', duration = 0.1) { if (isMuted || !audioContext) return; try { const o = audioContext.createOscillator(), g = audioContext.createGain(); o.connect(g); g.connect(audioContext.destination); o.type = type; o.frequency.setValueAtTime(frequency, audioContext.currentTime); g.gain.setValueAtTime(0.2, audioContext.currentTime); g.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration); o.start(); o.stop(audioContext.currentTime + duration); } catch (e) { } }
             function playSound(type) {
                 // 優先使用實體音檔
@@ -2948,7 +2958,13 @@
             document.getElementById('create-room-btn').onclick = createMultiplayerRoom;
             document.getElementById('join-room-btn').onclick = joinMultiplayerRoom;
             document.getElementById('start-multiplayer-game-btn').onclick = triggerStartGame;
-            document.getElementById('clear-btn').addEventListener('click', () => { userAnswer = ''; updateAnswerDisplay(); });
+            document.getElementById('clear-btn').addEventListener('click', () => {
+                playSound('touch');
+                if (userAnswer.length > 0) {
+                    userAnswer = userAnswer.slice(0, -1);
+                }
+                updateAnswerDisplay();
+            });
             document.getElementById('quit-level-btn').addEventListener('click', () => {
                 clearInterval(countdownInterval);
                 currentCombo = 0;
