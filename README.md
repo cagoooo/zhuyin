@@ -1,5 +1,7 @@
 # ㄅㄆㄇ 注音大挑戰 🎲 (Bopomofo Learning Game)
 
+🌐 **線上使用：[ㄅㄆㄇ注音大挑戰](https://cagoooo.github.io/zhuyin/)**
+
 ## 📖 專案簡介
 這是一個以純前端技術 (HTML, CSS, JavaScript) 開發的「ㄅㄆㄇ」注音學習小遊戲。完全不需安裝任何後端環境或依賴套件，只要透過瀏覽器打開 `index.html` 即可直接遊玩。這款遊戲專為兒童及初學注音設計，具備活潑的介面、闖關機制與簡單的音效回饋。
 
@@ -50,7 +52,7 @@
 - Repository：`cagoooo/zhuyin`
 - 可見性：公開
 - 主要技術：HTML、Firebase
-- 線上入口：未在 GitHub repository metadata 設定
+- 線上入口：<https://cagoooo.github.io/zhuyin/>
 
 ### 可以怎麼應用
 
