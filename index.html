@@ -1738,6 +1738,66 @@
             border-radius: 30px;
             margin-top: 20px;
         }
+
+        /* --- 開始畫面頁尾：作者署名（只在開始畫面顯示） --- */
+        .start-footer {
+            margin-top: 22px;
+            padding: 12px 20px;
+            max-width: 100%;
+            background: rgba(255, 255, 255, 0.72);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius-btn);
+            box-shadow: var(--clay-inner-top), var(--clay-outer-soft);
+            color: var(--text-color);
+            font-family: 'Baloo 2', 'Comic Neue', sans-serif;
+            line-height: 1.5;
+        }
+        .start-footer p {
+            margin: 0;
+        }
+        .start-footer__name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .site-credit {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .site-credit__heart {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        .site-credit__author {
+            color: var(--accent-color);
+            font-weight: 800;
+            text-decoration: none;
+            border-bottom: 2px dotted currentColor;
+            padding: 2px 0 1px;
+            transition: color 0.2s;
+        }
+        .site-credit__author:hover {
+            color: var(--primary-color);
+        }
+        .site-credit .footer-school {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+        /* 手機：右下角有吉祥物，頁尾靠左留出位置 */
+        @media (max-width: 520px) {
+            .start-footer {
+                align-self: flex-start;
+                margin-right: 96px;
+                padding: 10px 14px;
+                text-align: left;
+            }
+            .start-footer__name { display: none; }
+        }
+        @media print {
+            .start-footer { display: none; }
+        }
     </style>
 </head>
 
@@ -1756,6 +1816,12 @@
                     商城</button>
                 <button id="open-multiplayer-btn" class="btn" style="background-color: #4CAF50;">🏫 多人連線</button>
             </div>
+            <footer class="start-footer">
+                <p class="start-footer__name">🎲 ㄅㄆㄇ 注音大挑戰・看圖拼注音、闖關收集徽章</p>
+                <p class="site-credit">Made with <span class="site-credit__heart" aria-label="愛心">❤️</span> by
+                    <a href="https://cagoooo.github.io/Akai/" target="_blank" rel="noopener noreferrer" title="阿凱老師教育科技創新專區" class="site-credit__author">阿凱老師</a>
+                    <span class="footer-school">桃園市龍潭區石門國民小學</span></p>
+            </footer>
         </div>
         <div id="level-select-screen" class="screen scrollable-screen">
             <button class="parent-btn" id="back-to-home-from-map" style="left: 20px; right: auto;">🏠 返回</button>
