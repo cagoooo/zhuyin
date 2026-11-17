@@ -1,4 +1,5 @@
-const CACHE_NAME = 'bopomofo-v3.1.1';
+const CACHE_PREFIX = 'bopomofo-';
+const CACHE_NAME = CACHE_PREFIX + 'v3.1.1';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -20,13 +21,13 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Activate: 清理舊快取
+// Activate: 清理本工具的舊快取（只動 bopomofo- 開頭的，同網域其他工具的快取不動）
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((name) => {
-                    if (name !== CACHE_NAME) {
+                    if (name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME) {
                         console.log('SW: Removing old cache', name);
                         return caches.delete(name);
                     }
